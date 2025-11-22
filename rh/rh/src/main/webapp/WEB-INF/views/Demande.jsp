@@ -1,3 +1,11 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.*, java.text.*, com.ressourcesHumaine.rh.entities.*" %>
+<%
+    List<Employe> employes = (List<Employe>) request.getAttribute("employes");
+    String message = (String) request.getAttribute("message");
+    String error = (String) request.getAttribute("error");
+%>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -470,9 +478,37 @@
         .btn-secondary:hover {
             background: #5a6268;
         }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            color: white;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #28a745;
+        }
+
+        .alert-error {
+            background: #dc3545;
+        }
     </style>
 </head>
 <body>
+    <% if (message != null) { %>
+        <div class="alert alert-success">✅ <%= message %></div>
+    <% } %>
+
+    <% if (error != null) { %>
+        <div class="alert alert-error">❌ <%= error %></div>
+    <% } %>
+
     <div class="container">
         <header>
             <h1>📝 Gestion des Demandes</h1>
@@ -480,15 +516,10 @@
         </header>
 
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('conges')">
-                🏖️ Demandes de Congés
-            </div>
-            <div class="tab" onclick="switchTab('avances')">
-                💰 Demandes d'Avances
-            </div>
+            <div class="tab active" onclick="switchTab('conges')">🏖️ Demandes de Congés</div>
+            <div class="tab" onclick="switchTab('avances')">💰 Demandes d'Avances</div>
         </div>
 
-        <!-- Onglet Congés -->
         <div id="conges-tab" class="tab-content active">
             <div class="controls">
                 <div class="filter-group">
@@ -505,22 +536,10 @@
 
             <div class="content">
                 <div class="stats">
-                    <div class="stat-card pending">
-                        <h3>En Attente</h3>
-                        <div class="stat-value">5</div>
-                    </div>
-                    <div class="stat-card approved">
-                        <h3>Approuvées</h3>
-                        <div class="stat-value">12</div>
-                    </div>
-                    <div class="stat-card rejected">
-                        <h3>Refusées</h3>
-                        <div class="stat-value">2</div>
-                    </div>
-                    <div class="stat-card total">
-                        <h3>Total</h3>
-                        <div class="stat-value">19</div>
-                    </div>
+                    <div class="stat-card pending"><h3>En Attente</h3><div class="stat-value">5</div></div>
+                    <div class="stat-card approved"><h3>Approuvées</h3><div class="stat-value">12</div></div>
+                    <div class="stat-card rejected"><h3>Refusées</h3><div class="stat-value">2</div></div>
+                    <div class="stat-card total"><h3>Total</h3><div class="stat-value">19</div></div>
                 </div>
 
                 <div class="demandes-grid" id="congesGrid">
@@ -537,22 +556,10 @@
                             </div>
                         </div>
                         <div class="demande-info">
-                            <div class="info-row">
-                                <span class="info-label">📅 Début:</span>
-                                <span class="info-value">15 Nov 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">📅 Fin:</span>
-                                <span class="info-value">20 Nov 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">⏱️ Durée:</span>
-                                <span class="info-value">6 jours</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">📋 Motif:</span>
-                                <span class="info-value">Vacances</span>
-                            </div>
+                            <div class="info-row"><span class="info-label">📅 Début:</span><span class="info-value">15 Nov 2024</span></div>
+                            <div class="info-row"><span class="info-label">📅 Fin:</span><span class="info-value">20 Nov 2024</span></div>
+                            <div class="info-row"><span class="info-label">⏱️ Durée:</span><span class="info-value">6 jours</span></div>
+                            <div class="info-row"><span class="info-label">📋 Motif:</span><span class="info-value">Vacances</span></div>
                         </div>
                         <div class="demande-actions">
                             <button class="btn-action btn-approve" onclick="approveConge(1)">✅ Approuver</button>
@@ -573,22 +580,10 @@
                             </div>
                         </div>
                         <div class="demande-info">
-                            <div class="info-row">
-                                <span class="info-label">📅 Début:</span>
-                                <span class="info-value">10 Nov 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">📅 Fin:</span>
-                                <span class="info-value">12 Nov 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">⏱️ Durée:</span>
-                                <span class="info-value">3 jours</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">📋 Motif:</span>
-                                <span class="info-value">Événement familial</span>
-                            </div>
+                            <div class="info-row"><span class="info-label">📅 Début:</span><span class="info-value">10 Nov 2024</span></div>
+                            <div class="info-row"><span class="info-label">📅 Fin:</span><span class="info-value">12 Nov 2024</span></div>
+                            <div class="info-row"><span class="info-label">⏱️ Durée:</span><span class="info-value">3 jours</span></div>
+                            <div class="info-row"><span class="info-label">📋 Motif:</span><span class="info-value">Événement familial</span></div>
                         </div>
                         <div class="demande-actions">
                             <button class="btn-action btn-view" onclick="viewConge(2)">👁️ Détails</button>
@@ -608,22 +603,10 @@
                             </div>
                         </div>
                         <div class="demande-info">
-                            <div class="info-row">
-                                <span class="info-label">📅 Début:</span>
-                                <span class="info-value">08 Nov 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">📅 Fin:</span>
-                                <span class="info-value">10 Nov 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">⏱️ Durée:</span>
-                                <span class="info-value">3 jours</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">📋 Motif:</span>
-                                <span class="info-value">Personnel</span>
-                            </div>
+                            <div class="info-row"><span class="info-label">📅 Début:</span><span class="info-value">08 Nov 2024</span></div>
+                            <div class="info-row"><span class="info-label">📅 Fin:</span><span class="info-value">10 Nov 2024</span></div>
+                            <div class="info-row"><span class="info-label">⏱️ Durée:</span><span class="info-value">3 jours</span></div>
+                            <div class="info-row"><span class="info-label">📋 Motif:</span><span class="info-value">Personnel</span></div>
                         </div>
                         <div class="demande-actions">
                             <button class="btn-action btn-view" onclick="viewConge(3)">👁️ Détails</button>
@@ -633,7 +616,6 @@
             </div>
         </div>
 
-        <!-- Onglet Avances -->
         <div id="avances-tab" class="tab-content">
             <div class="controls">
                 <div class="filter-group">
@@ -650,22 +632,10 @@
 
             <div class="content">
                 <div class="stats">
-                    <div class="stat-card pending">
-                        <h3>En Attente</h3>
-                        <div class="stat-value">3</div>
-                    </div>
-                    <div class="stat-card approved">
-                        <h3>Approuvées</h3>
-                        <div class="stat-value">8</div>
-                    </div>
-                    <div class="stat-card rejected">
-                        <h3>Refusées</h3>
-                        <div class="stat-value">1</div>
-                    </div>
-                    <div class="stat-card total">
-                        <h3>Montant Total</h3>
-                        <div class="stat-value">4.5M Ar</div>
-                    </div>
+                    <div class="stat-card pending"><h3>En Attente</h3><div class="stat-value">3</div></div>
+                    <div class="stat-card approved"><h3>Approuvées</h3><div class="stat-value">8</div></div>
+                    <div class="stat-card rejected"><h3>Refusées</h3><div class="stat-value">1</div></div>
+                    <div class="stat-card total"><h3>Montant Total</h3><div class="stat-value">4.5M Ar</div></div>
                 </div>
 
                 <div class="demandes-grid" id="avancesGrid">
@@ -682,18 +652,9 @@
                             </div>
                         </div>
                         <div class="demande-info">
-                            <div class="info-row">
-                                <span class="info-label">📅 Date:</span>
-                                <span class="info-value">05 Nov 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">📆 Mois:</span>
-                                <span class="info-value">Novembre 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">💵 Montant:</span>
-                                <span class="info-value montant">500,000 Ar</span>
-                            </div>
+                            <div class="info-row"><span class="info-label">📅 Date:</span><span class="info-value">05 Nov 2024</span></div>
+                            <div class="info-row"><span class="info-label">📆 Mois:</span><span class="info-value">Novembre 2024</span></div>
+                            <div class="info-row"><span class="info-label">💵 Montant:</span><span class="info-value montant">500,000 Ar</span></div>
                         </div>
                         <div class="demande-actions">
                             <button class="btn-action btn-approve" onclick="approveAvance(1)">✅ Approuver</button>
@@ -714,18 +675,9 @@
                             </div>
                         </div>
                         <div class="demande-info">
-                            <div class="info-row">
-                                <span class="info-label">📅 Date:</span>
-                                <span class="info-value">01 Nov 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">📆 Mois:</span>
-                                <span class="info-value">Novembre 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">💵 Montant:</span>
-                                <span class="info-value montant">750,000 Ar</span>
-                            </div>
+                            <div class="info-row"><span class="info-label">📅 Date:</span><span class="info-value">01 Nov 2024</span></div>
+                            <div class="info-row"><span class="info-label">📆 Mois:</span><span class="info-value">Novembre 2024</span></div>
+                            <div class="info-row"><span class="info-label">💵 Montant:</span><span class="info-value montant">750,000 Ar</span></div>
                         </div>
                         <div class="demande-actions">
                             <button class="btn-action btn-view" onclick="viewAvance(2)">👁️ Détails</button>
@@ -745,18 +697,9 @@
                             </div>
                         </div>
                         <div class="demande-info">
-                            <div class="info-row">
-                                <span class="info-label">📅 Date:</span>
-                                <span class="info-value">28 Oct 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">📆 Mois:</span>
-                                <span class="info-value">Octobre 2024</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">💵 Montant:</span>
-                                <span class="info-value montant">1,000,000 Ar</span>
-                            </div>
+                            <div class="info-row"><span class="info-label">📅 Date:</span><span class="info-value">28 Oct 2024</span></div>
+                            <div class="info-row"><span class="info-label">📆 Mois:</span><span class="info-value">Octobre 2024</span></div>
+                            <div class="info-row"><span class="info-label">💵 Montant:</span><span class="info-value montant">1,000,000 Ar</span></div>
                         </div>
                         <div class="demande-actions">
                             <button class="btn-action btn-view" onclick="viewAvance(3)">👁️ Détails</button>
@@ -767,7 +710,6 @@
         </div>
     </div>
 
-    <!-- Modal Congé -->
     <div class="modal" id="congesModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -811,7 +753,6 @@
         </div>
     </div>
 
-    <!-- Modal Avance -->
     <div class="modal" id="avancesModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -819,31 +760,43 @@
                 <button class="close-btn" onclick="closeModalAvances()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="avancesForm">
+                <form id="avancesForm" action="/avance/demanderAvance" method="post">
                     <div class="form-group">
                         <label>Employé *</label>
-                        <select required>
+                        <select name="idEmploye" required>
                             <option value="">Sélectionner un employé</option>
-                            <option value="1">Jean Dupont</option>
-                            <option value="2">Marie Martin</option>
-                            <option value="3">Paul Razafindra</option>
+                            <% for (Employe employe : employes) { %>
+                                <option value="<%= employe.getIdEmploye() %>">
+                                    <%= employe.getNom() %>
+                                </option>
+                            <% } %>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Date *</label>
-                        <input type="date" required>
+                        <input type="date" name="dateAvance" required>
                     </div>
                     <div class="form-group">
                         <label>Mois *</label>
-                        <select required>
+                        <select name="moisId" required>
                             <option value="">Sélectionner un mois</option>
-                            <option value="11">Novembre 2024</option>
-                            <option value="12">Décembre 2024</option>
+                            <option value="1">Janvier</option>
+                            <option value="2">Février</option>
+                            <option value="3">Mars</option>
+                            <option value="4">Avril</option>
+                            <option value="5">Mai</option>
+                            <option value="6">Juin</option>
+                            <option value="7">Juillet</option>
+                            <option value="8">Août</option>
+                            <option value="9">Septembre</option>
+                            <option value="10">Octobre</option>
+                            <option value="11">Novembre</option>
+                            <option value="12">Décembre</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Montant (Ar) *</label>
-                        <input type="number" placeholder="500000" min="0" required>
+                        <input type="number" name="montant" placeholder="en Ariary" min="0" step="0.01" required>
                     </div>
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModalAvances()">Annuler</button>
@@ -920,12 +873,14 @@
             e.preventDefault();
             alert('Demande de congé soumise avec succès!');
             closeModalConges();
+            this.reset();
         });
 
         document.getElementById('avancesForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Demande d\'avance soumise avec succès!');
-            closeModalAvances();
+            if (this.checkValidity()) {
+                alert('Demande d\'avance envoyée!');
+                closeModalAvances();
+            }
         });
 
         document.getElementById('searchConges').addEventListener('input', function(e) {
@@ -973,6 +928,13 @@
         document.getElementById('avancesModal').addEventListener('click', function(e) {
             if (e.target === this) closeModalAvances();
         });
+
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.display = 'none';
+            });
+        }, 5000);
     </script>
 </body>
 </html>

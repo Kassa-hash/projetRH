@@ -474,43 +474,41 @@
 
         <div class="menu">
             <div class="menu-item active">
-                <i>📊</i>
                 <span>Tableau de Bord</span>
             </div>
             <div class="menu-item">
-                <i>👥</i>
-                <span>Employés</span>
+                <span><a href="/employes">Employes</a></span>
             </div>
             <div class="menu-item">
-                <i>📋</i>
+
                 <span>Contrats</span>
             </div>
             <div class="menu-item">
-                <i>📁</i>
+
                 <span>Documents</span>
             </div>
             <div class="menu-item">
-                <i>✅</i>
+
                 <span>Présences</span>
             </div>
             <div class="menu-item">
-                <i>⏰</i>
+
                 <span>Pointages</span>
             </div>
             <div class="menu-item">
-                <i>⏱️</i>
+
                 <span>Heures Supp</span>
             </div>
             <div class="menu-item">
-                <i>🏖️</i>
+
                 <span>Congés</span>
             </div>
             <div class="menu-item">
-                <i>💰</i>
-                <span>Avances</span>
+
+                <span><a href="/avance">Avances</a></span>
             </div>
             <div class="menu-item">
-                <i>⚙️</i>
+
                 <span>Paramètres</span>
             </div>
         </div>
@@ -529,7 +527,7 @@
             <h2>Tableau de Bord</h2>
             <div class="topbar-actions">
                 <button class="notification-btn">
-                    🔔
+
                     <span class="notification-badge">5</span>
                 </button>
                 <button class="notification-btn">⚙️</button>
