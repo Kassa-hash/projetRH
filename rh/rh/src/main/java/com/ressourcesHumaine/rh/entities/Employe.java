@@ -30,6 +30,15 @@ public class Employe {
     @Column(name = "adresse", length = 50)
     private String adresse;
 
+    @Column(name="mdp")
+    public String mdp;
+
+    public String getMdp() {
+        return mdp;
+    }
+    public void setMdp(String mdp) {
+        this.mdp = mdp;
+    }
     @ManyToOne
     @JoinColumn(name = "Id_Role", nullable = false)
     private Role role;
@@ -38,7 +47,12 @@ public class Employe {
     @JoinColumn(name = "Id_Genre", nullable = false)
     private Genre genre;
 
-    // Getters and Setters
+    @ManyToOne
+    @JoinColumn(name="Id_ContratEmploye")
+    private ContratEmploye contratEmploye;
+
+    public ContratEmploye getContratEmploye(){return this.contratEmploye;}
+    public void setContratEmploye(ContratEmploye co){this.contratEmploye=co;}
     public Long getIdEmploye() { return idEmploye; }
     public void setIdEmploye(Long idEmploye) { this.idEmploye = idEmploye; }
     public String getNom() { return nom; }

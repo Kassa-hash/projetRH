@@ -1,0 +1,15 @@
+ajout de la colonne dateFin dans contrat employe --ok
+ajout de la colonne status dans demande de conge --ok
+ajout de la colonne status dans demande avance --ok
+ajout de la colonne duree dans type contrat (en cas de CDD/stage) --ok
+enlever la colonne duree dans type contrat => a faire
+mettre employe dans contratEmploye et mettre contratEmploye dans employe --ok
+ajout colonne poste dans contratEmploye --ok
+efface l entite posteemploye(Utiliser many to one)
+ajout de la colonne libelle dans role --ok
+table avec les jours feries (taux journalier * 2 => fete nationale + pour calculer salaire)
+update le salaire (pas fixe pour chaque employe meme si meme poste (salaire de base => meme))
+ne pas utiliser la table conge (juste demande_conge avec status)
+ajout de la table historique pour le dashaboard (insert apres chaque action) --ok
+ajout de la table historique (Pour les notifications) --ok
+

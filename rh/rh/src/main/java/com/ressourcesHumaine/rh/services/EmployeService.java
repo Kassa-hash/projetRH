@@ -2,17 +2,28 @@ package com.ressourcesHumaine.rh.services;
 
 import com.ressourcesHumaine.rh.entities.Employe;
 import com.ressourcesHumaine.rh.repositories.EmployeRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.ressourcesHumaine.rh.entities.ContratEmploye;
 
 @Service
 public class EmployeService {
 
     @Autowired
     private EmployeRepository employeRepository;
+
+    @Autowired
+    private ContratEmployeService employesService;
+
+    public EmployeService(EmployeRepository emp){
+        this.employeRepository=emp;
+    }
 
     // CREATE - Ajouter un employé
     public Employe saveEmploye(Employe employe) {
@@ -110,5 +121,35 @@ public class EmployeService {
     public boolean employeExists(Long id) {
         return employeRepository.existsById(id);
     }
+
+    //avoir les employes actuels 
+    public List<Employe> employesActuels()
+    {
+        List<ContratEmploye> contrats=employesService.contratsActuels();
+        List<Employe> allEmployes=new ArrayList<>();
+
+        for(ContratEmploye contrat:contrats){
+            allEmployes.add(contrat.getEmploye());
+        }
+
+        return allEmployes;
+    }
+
+    //avoir l'age moyen 
+    public int getAgeMoyen(){
+        return employeRepository.getAgeMoyen();
+    }
+
+    //avoir anciennete moyenne
+    public double getAncienneteMoyenne(){
+        return employeRepository.getAncienneteMoyenne();
+    }
+
+    //login
+    public Employe login(String nom,String mdp)
+    {
+        return employeRepository.login(nom, mdp);
+    }
+
 }
 

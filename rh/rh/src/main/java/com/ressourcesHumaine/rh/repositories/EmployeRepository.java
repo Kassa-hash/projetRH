@@ -27,4 +27,25 @@ public interface EmployeRepository extends JpaRepository<Employe, Long> {
     // Recherche par genre
     @Query("SELECT e FROM Employe e WHERE e.genre.idGenre = :genreId")
     List<Employe> findByGenreId(@Param("genreId") Long genreId);
+
+    //age moyen 
+    @Query(
+        value = "SELECT ROUND(AVG(TIMESTAMPDIFF(YEAR, date_de_naissance, CURDATE()))) FROM employe",
+        nativeQuery = true
+    )
+    int getAgeMoyen();
+
+    //anciennete moyenne
+    @Query(
+        value = "SELECT ROUND(AVG(TIMESTAMPDIFF(MONTH, date_, COALESCE(Date_Fin, CURDATE())) / 12), 1) " +
+                "FROM contrat_employe",
+        nativeQuery = true
+    )
+    Double getAncienneteMoyenne();
+
+    //login
+    @Query("select c from Employe c where c.nom= :nom and c.mdp= :mdp")
+    Employe login(@Param("nom") String nom,@Param("mdp") String mdp);
+
+    
 }

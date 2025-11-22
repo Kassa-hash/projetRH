@@ -1,3 +1,5 @@
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -465,6 +467,29 @@
         }
     </style>
 </head>
+<%@ page import="java.util.List"%>
+<%@ page import="com.ressourcesHumaine.rh.entities.Employe"%>
+<%@ page import="com.ressourcesHumaine.rh.entities.DemandeConge"%>
+<%@ page import="com.ressourcesHumaine.rh.entities.DemandeAvance"%>
+<%@ page import="com.ressourcesHumaine.rh.entities.Historique"%>
+
+<% 
+    List<Employe> employesActuels=(List<Employe>) request.getAttribute("employesActuels");
+    int nbEmployesActuels=employesActuels.size();
+
+    List<DemandeConge> demandesConge=(List<DemandeConge>) request.getAttribute("demandesConge");
+    int nbdemandesConge=demandesConge.size();
+
+    List<DemandeAvance> demandesAvance=(List<DemandeAvance>) request.getAttribute("demandesAvance");
+    int nbdemandesAvances=demandesAvance.size();
+
+    //total demandes
+    int nbDemandes=nbdemandesAvances+nbdemandesConge;
+
+    //liste des historiques des evenements
+    List<Historique> historiques=(List<Historique>) request.getAttribute("historiques");
+%>
+
 <body>
     <div class="sidebar">
         <div class="logo">
@@ -473,38 +498,42 @@
         </div>
 
         <div class="menu">
-            <div class="menu-item active">
+            <a href="/"><div class="menu-item active">
                 <i>📊</i>
                 <span>Tableau de Bord</span>
-            </div>
-            <div class="menu-item">
+            </div></a>
+            <a href="/employes"><div class="menu-item">
                 <i>👥</i>
                 <span>Employés</span>
-            </div>
+            </div></a>
             <div class="menu-item">
                 <i>📋</i>
                 <span>Contrats</span>
             </div>
             <div class="menu-item">
                 <i>📁</i>
-                <span>Documents</span>
+                <span>Demandes</span>
             </div>
-            <div class="menu-item">
+            <a href="/presences"><div class="menu-item">
                 <i>✅</i>
                 <span>Présences</span>
-            </div>
-            <div class="menu-item">
+            </div></a>
+            <a href="/pointages"><div class="menu-item">
                 <i>⏰</i>
                 <span>Pointages</span>
-            </div>
+            </div></a>
             <div class="menu-item">
                 <i>⏱️</i>
                 <span>Heures Supp</span>
             </div>
-            <div class="menu-item">
+            <a href="/demandes"><div class="menu-item">
                 <i>🏖️</i>
                 <span>Congés</span>
-            </div>
+            </div></a>
+              <a href="/employes/goLogin"><div class="menu-item">
+                <i>👥</i>
+              <span>Utilisateur</span>
+            </div></a>
             <div class="menu-item">
                 <i>💰</i>
                 <span>Avances</span>
@@ -540,15 +569,23 @@
             <!-- Statistiques principales -->
             <div class="dashboard-grid">
                 <div class="stat-card blue">
-                    <div class="stat-header">
-                        <div class="stat-info">
-                            <h3>Total Employés</h3>
-                            <div class="stat-value">156</div>
-                            <div class="stat-change positive">↑ +5 ce mois</div>
-                        </div>
-                        <div class="stat-icon">👥</div>
-                    </div>
-                </div>
+    <div class="stat-header">
+        <div class="stat-info">
+            <h3>Total Employés</h3>
+            <div class="stat-value">
+                <%
+                    int effectifNow = (int) request.getAttribute("effectifNow");
+                    if (effectifNow > 0) {
+                        out.print("<strong>" + effectifNow + "</strong>");
+                    } else {
+                        out.print("Aucun employé en activité");
+                    }
+                %>
+            </div>
+        </div>
+        <div class="stat-icon">👥</div>
+    </div>
+</div>
 
                 <div class="stat-card green">
                     <div class="stat-header">
@@ -565,8 +602,8 @@
                     <div class="stat-header">
                         <div class="stat-info">
                             <h3>Demandes en Attente</h3>
-                            <div class="stat-value">8</div>
-                            <div class="stat-change">5 congés, 3 avances</div>
+                            <div class="stat-value"><%= nbDemandes %></div>
+                            <div class="stat-change"><%= nbdemandesConge %> congés, <%= nbdemandesAvances%> avances</div>
                         </div>
                         <div class="stat-icon">⏳</div>
                     </div>
@@ -620,17 +657,125 @@
             <!-- Graphiques -->
             <div class="charts-grid">
                 <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>📈 Évolution des Effectifs</h3>
-                        <select style="padding: 8px; border-radius: 6px; border: 2px solid #e0e0e0;">
-                            <option>6 derniers mois</option>
-                            <option>12 derniers mois</option>
-                            <option>Cette année</option>
-                        </select>
-                    </div>
-                    <div class="chart-placeholder">
-                        📊 Graphique d'évolution des effectifs
-                    </div>
+    <div class="chart-header">
+        <h3>Évolution des Effectifs sur les 6 derniers mois</h3>
+    </div>
+    <canvas id="effectifChart" height="100"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('effectifChart').getContext('2d');
+    let chart;
+
+    function loadChart(periode) {
+        fetch(`/api/effectif/evolution?periode=${periode}`)
+            .then(res => res.json())
+            .then(data => {
+                const labels = data.map(d => d.mois);
+                const effectifs = data.map(d => d.effectif);
+
+                // Calcul des arrivées/départs par mois
+                const arrivees = [];
+                const departs = [];
+                let previous = 0;
+
+                effectifs.forEach((current, i) => {
+                    const diff = current - previous;
+                    if (diff > 0) {
+                        arrivees.push(diff);
+                        departs.push(0);
+                    } else if (diff < 0) {
+                        arrivees.push(0);
+                        departs.push(-diff);
+                    } else {
+                        arrivees.push(0);
+                        departs.push(0);
+                    }
+                    previous = current;
+                });
+
+                if (chart) chart.destroy();
+
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Arrivées',
+                                data: arrivees,
+                                backgroundColor: '#28a745',
+                                borderColor: '#218838',
+                                borderWidth: 1
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Départs',
+                                data: departs,
+                                backgroundColor: '#dc3545',
+                                borderColor: '#c82333',
+                                borderWidth: 1
+                            },
+                            {
+                                type: 'line',
+                                label: 'Effectif total',
+                                data: effectifs,
+                                borderColor: '#4a7c2c',
+                                backgroundColor: 'rgba(74, 124, 44, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 3,
+                                pointBackgroundColor: '#4a7c2c',
+                                pointRadius: 6,
+                                yAxisID: 'y'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: false,
+                            },
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Nombre d\'employés'
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => {
+                console.error("Erreur chargement graphique :", err);
+                document.getElementById('effectifChart').parentElement.innerHTML = 
+                    "<p style='color:red; text-align:center; padding:50px;'>Erreur de chargement du graphique</p>";
+            });
+    }
+
+    // Chargement initial
+    loadChart('6mois');
+
+    // Changement de période
+    document.getElementById('periodeSelect').addEventListener('change', function() {
+        loadChart(this.value);
+    });
+</script>
                 </div>
 
                 <div class="chart-card">
@@ -642,74 +787,78 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Activités récentes -->
             <div class="recent-activity">
-                <div class="activity-header">
-                    <h3>Activités Récentes</h3>
-                    <button style="padding: 8px 16px; background: #4a7c2c; color: white; border: none; border-radius: 6px; cursor: pointer;">Voir tout</button>
+    <div class="activity-header">
+        <h3>Activités Récentes</h3>
+        <button style="padding: 8px 16px; background: #4a7c2c; color: white; border: none; border-radius: 6px; cursor: pointer;">Voir tout</button>
+    </div>
+    <div class="activity-list">
+        <%
+            if (historiques != null && !historiques.isEmpty()) {
+                for (Historique h : historiques) {
+                    String iconClass = "blue";  // par défaut
+                    String emoji = "📋";        // document par défaut
+
+                    String desc = h.getDescription() != null ? h.getDescription().toLowerCase() : "";
+
+                    if (desc.contains("refus")) {
+                        iconClass = "red";
+                        emoji = "❌";
+                    } else if (desc.contains("approuv") || desc.contains("valid") || desc.contains("accept")) {
+                        iconClass = "green";
+                        emoji = "✅";
+                    } else if (desc.contains("créé") || desc.contains("ajout") || desc.contains("enregistr")) {
+                        iconClass = "blue";
+                        emoji = "🆕";
+                    }
+
+                    // Selon la classe (type d'entité)
+                    if ("DemandeConge".equals(h.getClasse())) {
+                        emoji = "🏖️";   // congé
+                    } else if ("DemandeAvance".equals(h.getClasse())) {
+                        emoji = "💰";   // argent
+                    } else if ("Employe".equals(h.getClasse())) {
+                        emoji = "👤";   // personne
+                    }
+        %>
+            <div class="activity-item">
+                <div class="activity-icon <%= iconClass %>"><%= emoji %></div>
+                <div class="activity-details">
+                    <h4><%= h.getDescription() %></h4>
+                    <p><%= h.getDetails() != null ? h.getDetails() : "" %></p>
                 </div>
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon green">👤</div>
-                        <div class="activity-details">
-                            <h4>Nouvel employé enregistré</h4>
-                            <p>Jean Dupont a été ajouté comme Développeur</p>
-                        </div>
-                        <div class="activity-time">Il y a 15 min</div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon yellow">🏖️</div>
-                        <div class="activity-details">
-                            <h4>Demande de congé en attente</h4>
-                            <p>Marie Martin - 5 jours du 15 au 20 Nov</p>
-                        </div>
-                        <div class="activity-time">Il y a 1h</div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon blue">⏰</div>
-                        <div class="activity-details">
-                            <h4>Pointage effectué</h4>
-                            <p>Paul Razafindra - Entrée à 08:15</p>
-                        </div>
-                        <div class="activity-time">Il y a 2h</div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon green">✅</div>
-                        <div class="activity-details">
-                            <h4>Congé approuvé</h4>
-                            <p>Sophie Bernard - 3 jours approuvés</p>
-                        </div>
-                        <div class="activity-time">Il y a 3h</div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon red">💰</div>
-                        <div class="activity-details">
-                            <h4>Demande d'avance</h4>
-                            <p>Luc Andriamana - 500,000 Ar</p>
-                        </div>
-                        <div class="activity-time">Il y a 4h</div>
-                    </div>
+                <div class="activity-time">
+                    <%= new java.text.SimpleDateFormat("HH:mm").format(java.util.Date.from(h.getMomentAction().atZone(java.time.ZoneId.systemDefault()).toInstant())) %>
                 </div>
             </div>
+        <%
+                }
+            } else {
+        %>
+            <div class="activity-item">
+                <div class="activity-details">
+                    <p style="color:#888; font-style:italic;">Aucune activité récente</p>
+                </div>
+            </div>
+        <%
+            }
+        %>
+    </div>
+</div>
 
             <!-- Indicateurs de performance -->
             <div class="dashboard-grid">
                 <div class="stat-card">
-                    <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">TAUX DE PRÉSENCE MENSUEL</h3>
-                    <div class="stat-value" style="color: #28a745;">94.5%</div>
+                    <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">AGE MOYEN DU PERSONNEL</h3>
+                    <div class="stat-value" style="color: #28a745;"><%= request.getAttribute("ageMoyen")%></div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: 94.5%;"></div>
                     </div>
                 </div>
 
                 <div class="stat-card">
-                    <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">CONTRATS ACTIFS</h3>
-                    <div class="stat-value" style="color: #17a2b8;">142</div>
+                    <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">ANCIENNETE MOYENNE (en Annees)</h3>
+                    <div class="stat-value" style="color: #17a2b8;"><%= request.getAttribute("ancienneteMoyenne")%></div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: 91%; background: linear-gradient(90deg, #17a2b8 0%, #138496 100%);"></div>
                     </div>
@@ -717,17 +866,9 @@
 
                 <div class="stat-card">
                     <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">DOCUMENTS VALIDÉS</h3>
-                    <div class="stat-value" style="color: #ffc107;">38/42</div>
+                    <div class="stat-value" style="color: #ffc107;"><%= request.getAttribute("docValid")%>/<%= request.getAttribute("totalDemande")%></div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: 90%; background: linear-gradient(90deg, #ffc107 0%, #e0a800 100%);"></div>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">RETARDS CE MOIS</h3>
-                    <div class="stat-value" style="color: #dc3545;">12</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 8%; background: linear-gradient(90deg, #dc3545 0%, #c82333 100%);"></div>
                     </div>
                 </div>
             </div>
