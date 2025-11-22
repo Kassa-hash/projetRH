@@ -27,8 +27,13 @@ public class DemandeAvance {
     @JoinColumn(name = "Id_Employe", nullable = false)
     private Employe employe;
 
+    @Column(name="status")
+    String status;
+
     // Getters and Setters
     public Long getIdDemandeAvance() { return idDemandeAvance; }
+    public String getStatus(){return this.status;}
+    public void setStatus(String st){this.status=st;}
     public void setIdDemandeAvance(Long idDemandeAvance) { this.idDemandeAvance = idDemandeAvance; }
     public Date getDate() { return date; }
     public void setDate(Date date) { this.date = date; }

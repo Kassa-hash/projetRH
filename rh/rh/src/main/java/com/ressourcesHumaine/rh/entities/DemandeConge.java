@@ -19,6 +19,19 @@ public class DemandeConge {
     @Temporal(TemporalType.DATE)
     private Date dateFin;
 
+    @Column(name = "DateDemande")
+    @Temporal(TemporalType.DATE)
+    private Date dateDemande;
+
+    @Column(name="status")
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
     @ManyToOne
     @JoinColumn(name = "Id_Motif", nullable = false)
     private Motif motif;
@@ -38,4 +51,7 @@ public class DemandeConge {
     public void setMotif(Motif motif) { this.motif = motif; }
     public Employe getEmploye() { return employe; }
     public void setEmploye(Employe employe) { this.employe = employe; }
+    public void setDateDemande(Date dt){this.dateDemande=dt;}
+    public Date getDateDemande(){return this.dateDemande;}
+    
 }
