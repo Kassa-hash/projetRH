@@ -331,6 +331,18 @@
             background: #c82333;
         }
 
+        .btn-present:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-absent:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .table-container {
             overflow-x: auto;
             background: white;
@@ -649,8 +661,9 @@
                             </c:choose>
                         </div>
                         <div class="action-buttons">
-                            <button class="btn-toggle btn-present" onclick="togglePresence(${emp.idEmploye}, true)">✅ Présent</button>
-                            <button class="btn-toggle btn-absent" onclick="togglePresence(${emp.idEmploye}, false)">❌ Absent</button>
+                            <button class="btn-toggle btn-present"
+                                    onclick="togglePresence(${emp.idEmploye}, true)"
+                                    ${empPresent ? 'disabled' : ''}>✅ Présent</button>
                         </div>
                     </div>
                 </c:forEach>
@@ -702,8 +715,9 @@
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-toggle btn-present" onclick="togglePresence(${emp.idEmploye}, true)">✅</button>
-                                        <button class="btn-toggle btn-absent" onclick="togglePresence(${emp.idEmploye}, false)">❌</button>
+                                        <button class="btn-toggle btn-present"
+                                                onclick="togglePresence(${emp.idEmploye}, true)"
+                                                ${rowPresent ? 'disabled' : ''}>✅</button>
                                     </div>
                                 </td>
                             </tr>

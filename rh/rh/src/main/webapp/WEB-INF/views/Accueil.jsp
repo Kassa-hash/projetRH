@@ -544,6 +544,14 @@
                 <i>⚙️</i>
                 <span>Paramètres</span>
             </div>
+            <div class="menu-item">
+                 <i>💰</i>
+                  <span>Paie</span>
+            </div>
+             <div class="menu-item">
+                <i>📁</i>
+                 <span>Gestion de document</span>
+              </div>
         </div>
 
         <div class="user-section">
