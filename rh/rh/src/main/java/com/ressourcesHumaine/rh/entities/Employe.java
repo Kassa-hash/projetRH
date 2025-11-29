@@ -40,7 +40,7 @@ public class Employe {
         this.mdp = mdp;
     }
     @ManyToOne
-    @JoinColumn(name = "Id_Role", nullable = false)
+    @JoinColumn(name = "Id_Role", nullable = true)
     private Role role;
 
     @ManyToOne

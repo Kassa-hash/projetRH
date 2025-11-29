@@ -1,22 +1,18 @@
 package com.ressourcesHumaine.rh.controllers;
 
-import com.ressourcesHumaine.rh.entities.DemandeConge;
-import com.ressourcesHumaine.rh.entities.Employe;
-import com.ressourcesHumaine.rh.entities.Motif;
-import com.ressourcesHumaine.rh.services.EmployeService;
-import com.ressourcesHumaine.rh.services.MotifService;
-import com.ressourcesHumaine.rh.entities.Mois;
+import com.ressourcesHumaine.rh.entities.*;
+import com.ressourcesHumaine.rh.services.*;
 import jakarta.servlet.http.HttpSession;
-import com.ressourcesHumaine.rh.services.MoisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-
-import com.ressourcesHumaine.rh.services.CongeSoldeService;
-import com.ressourcesHumaine.rh.services.DemandeCongeService;
 
 @Controller
 @RequestMapping("/employes")
@@ -37,10 +33,13 @@ public class EmployeController {
     @Autowired
     private CongeSoldeService congeSoldeService;
 
+    @Autowired
+    private GenreService genreService;
+
     // Page principale - Liste des employés
     @GetMapping
     public String listeEmployes(Model model) {
-        List<Employe> employes = employeService.getAllEmployes();
+        List<Employe> employes = employeService.employesActuels();
         model.addAttribute("employes", employes);
         model.addAttribute("employe", new Employe());
         return "Employe";
@@ -64,19 +63,58 @@ public class EmployeController {
     @GetMapping("/ajouter")
     public String showAddForm(Model model) {
         model.addAttribute("employe", new Employe());
-        return "employes/formulaire";
+        model.addAttribute("genres", genreService.getAllGenres());
+        return "FormulaireEmploye";
     }
+
 
     // Ajouter un employé
     @PostMapping("/ajouter")
-    public String ajouterEmploye(@ModelAttribute Employe employe, Model model) {
+    public String ajouterEmploye(@RequestParam String nom,
+                                 @RequestParam String dateDeNaissance,
+                                 @RequestParam String contact,
+                                 @RequestParam String email,
+                                 @RequestParam String adresse,
+                                 @RequestParam Long idGenre,
+                                 @RequestParam(required = false) String mdp,
+                                 @RequestParam(required = false) MultipartFile photo,
+                                 Model model) {
         try {
+            Employe employe = new Employe();
+            employe.setNom(nom);
+            employe.setContact(contact);
+            employe.setEmail(email);
+            employe.setAdresse(adresse);
+
+
+            // Conversion de la date
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                Date dateNaissance = sdf.parse(dateDeNaissance);
+                employe.setDateDeNaissance(dateNaissance);
+            } catch (ParseException e) {
+                model.addAttribute("error", "Format de date invalide");
+                return showAddForm(model);
+            }
+
+
+
+            // Gérer le mot de passe
+            if (mdp != null && !mdp.trim().isEmpty()) {
+                employe.setMdp(mdp);
+            }
+
+            // Créer les objets Genre
+            Genre genre = new Genre();
+            genre.setIdGenre(idGenre);
+            employe.setGenre(genre);
+
+
             employeService.saveEmploye(employe);
             return "redirect:/employes?success=Employé ajouté avec succès";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("employe", employe);
-            return "employes/formulaire";
+            return showAddForm(model);
         }
     }
 

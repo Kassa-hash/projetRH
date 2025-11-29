@@ -4,15 +4,13 @@
 <%
     // Récupération des données depuis la requête
     List<Employe> employes = (List<Employe>) request.getAttribute("employes");
-    Integer totalEmployes = (Integer) request.getAttribute("totalEmployes");
-    Integer totalRoles = (Integer) request.getAttribute("totalRoles");
-    Integer nouveauxCeMois = (Integer) request.getAttribute("nouveauxCeMois");
+    Integer totalEmployes = employes.size();
 
     // Valeurs par défaut si null
     if (employes == null) employes = new ArrayList<>();
     if (totalEmployes == null) totalEmployes = 0;
-    if (totalRoles == null) totalRoles = 0;
-    if (nouveauxCeMois == null) nouveauxCeMois = 0;
+
+
 
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 %>
@@ -279,7 +277,7 @@
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Rechercher un employé...">
             </div>
-            <a href="<%= request.getContextPath() %>/employe/nouveau" class="btn btn-primary">+ Nouvel Employé</a>
+            <a href="<%= request.getContextPath() %>/employes/ajouter" class="btn btn-primary">+ Nouvel Employé</a>
         </div>
 
         <div class="content">
@@ -287,14 +285,6 @@
                 <div class="stat-card">
                     <h3>Total Employés</h3>
                     <p><%= totalEmployes %></p>
-                </div>
-                <div class="stat-card">
-                    <h3>Rôles</h3>
-                    <p><%= totalRoles %></p>
-                </div>
-                <div class="stat-card">
-                    <h3>Nouveaux ce mois</h3>
-                    <p><%= nouveauxCeMois %></p>
                 </div>
             </div>
 
@@ -358,9 +348,9 @@
                                 </td>
                                 <td>
                                     <div class="actions">
-                                        <a href="<%= request.getContextPath() %>/employe/modifier/<%= employe.getIdEmploye() %>"
+                                        <a href="<%= request.getContextPath() %>/employes/modifier/<%= employe.getIdEmploye() %>"
                                            class="btn btn-edit">✏️ Modifier</a>
-                                        <form action="<%= request.getContextPath() %>/employe/supprimer/<%= employe.getIdEmploye() %>"
+                                        <form action="<%= request.getContextPath() %>/employes/supprimer/<%= employe.getIdEmploye() %>"
                                               method="post" style="display:inline;"
                                               onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet employé ?');">
                                             <button type="submit" class="btn btn-delete">🗑️ Supprimer</button>
