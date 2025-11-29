@@ -506,10 +506,10 @@
                 <i>👥</i>
                 <span>Employés</span>
             </div></a>
-            <div class="menu-item">
+            <a href="/contrats"><div class="menu-item">
                 <i>📋</i>
                 <span>Contrats</span>
-            </div>
+            </div></a>
             <div class="menu-item">
                 <i>📁</i>
                 <span>Demandes</span>

@@ -529,196 +529,8 @@
             <input type="text" class="search-box" id="searchInput" placeholder="🔍 Rechercher un employé...">
         </div>
 
-        <div class="content">
-            <div class="stats">
-                <div class="stat-card present">
-                    <h3>Présents</h3>
-                    <div class="stat-value">8</div>
-                </div>
-                <div class="stat-card late">
-                    <h3>En Retard</h3>
-                    <div class="stat-value">2</div>
-                </div>
-                <div class="stat-card absent">
-                    <h3>Absents</h3>
-                    <div class="stat-value">1</div>
-                </div>
-                <div class="stat-card active">
-                    <h3>En Cours</h3>
-                    <div class="stat-value">6</div>
-                </div>
-            </div>
-
             <div class="pointages-grid" id="pointagesGrid">
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Jean Dupont</h3>
-                            <p>Développeur</p>
-                        </div>
-                    </div>
-                    <div class="status-badge in-progress">🟢 En cours</div>
-                    <div class="time-info">
-                        <div class="time-row">
-                            <span class="time-label">🔽 Entrée</span>
-                            <span class="time-value">08:15</span>
-                        </div>
-                        <div class="time-row">
-                            <span class="time-label">🔼 Sortie</span>
-                            <span class="time-value empty">--:--</span>
-                        </div>
-                    </div>
-                    <div class="duration">
-                        <div class="duration-label">Temps de travail</div>
-                        <div class="duration-value">6h 45m</div>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-action btn-entry" disabled>✅ Entrée</button>
-                        <button class="btn-action btn-exit" onclick="markExit(1)">🚪 Sortie</button>
-                    </div>
-                </div>
-
-                <div class="employee-card late">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Marie Martin</h3>
-                            <p>Chef de Projet</p>
-                        </div>
-                    </div>
-                    <div class="status-badge late">⚠️ Retard</div>
-                    <div class="time-info">
-                        <div class="time-row">
-                            <span class="time-label">🔽 Entrée</span>
-                            <span class="time-value late">09:15</span>
-                        </div>
-                        <div class="time-row">
-                            <span class="time-label">🔼 Sortie</span>
-                            <span class="time-value">17:30</span>
-                        </div>
-                    </div>
-                    <div class="duration">
-                        <div class="duration-label">Temps de travail</div>
-                        <div class="duration-value">8h 15m</div>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-action btn-entry" disabled>✅ Entrée</button>
-                        <button class="btn-action btn-exit" disabled>🚪 Sortie</button>
-                    </div>
-                </div>
-
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Paul Razafindra</h3>
-                            <p>Analyste</p>
-                        </div>
-                    </div>
-                    <div class="status-badge present">✅ À l'heure</div>
-                    <div class="time-info">
-                        <div class="time-row">
-                            <span class="time-label">🔽 Entrée</span>
-                            <span class="time-value">08:00</span>
-                        </div>
-                        <div class="time-row">
-                            <span class="time-label">🔼 Sortie</span>
-                            <span class="time-value">17:00</span>
-                        </div>
-                    </div>
-                    <div class="duration">
-                        <div class="duration-label">Temps de travail</div>
-                        <div class="duration-value">9h 00m</div>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-action btn-entry" disabled>✅ Entrée</button>
-                        <button class="btn-action btn-exit" disabled>🚪 Sortie</button>
-                    </div>
-                </div>
-
-                <div class="employee-card absent">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Sophie Bernard</h3>
-                            <p>Designer</p>
-                        </div>
-                    </div>
-                    <div class="status-badge absent">❌ Absent</div>
-                    <div class="time-info">
-                        <div class="time-row">
-                            <span class="time-label">🔽 Entrée</span>
-                            <span class="time-value empty">Non pointé</span>
-                        </div>
-                        <div class="time-row">
-                            <span class="time-label">🔼 Sortie</span>
-                            <span class="time-value empty">--:--</span>
-                        </div>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-action btn-entry" onclick="markEntry(4)">✅ Entrée</button>
-                        <button class="btn-action btn-exit" disabled>🚪 Sortie</button>
-                    </div>
-                </div>
-
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Luc Andriamana</h3>
-                            <p>Technicien</p>
-                        </div>
-                    </div>
-                    <div class="status-badge in-progress">🟢 En cours</div>
-                    <div class="time-info">
-                        <div class="time-row">
-                            <span class="time-label">🔽 Entrée</span>
-                            <span class="time-value">07:45</span>
-                        </div>
-                        <div class="time-row">
-                            <span class="time-label">🔼 Sortie</span>
-                            <span class="time-value empty">--:--</span>
-                        </div>
-                    </div>
-                    <div class="duration">
-                        <div class="duration-label">Temps de travail</div>
-                        <div class="duration-value">7h 15m</div>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-action btn-entry" disabled>✅ Entrée</button>
-                        <button class="btn-action btn-exit" onclick="markExit(5)">🚪 Sortie</button>
-                    </div>
-                </div>
-
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Claire Rasoanaivo</h3>
-                            <p>Comptable</p>
-                        </div>
-                    </div>
-                    <div class="status-badge in-progress">🟢 En cours</div>
-                    <div class="time-info">
-                        <div class="time-row">
-                            <span class="time-label">🔽 Entrée</span>
-                            <span class="time-value">08:30</span>
-                        </div>
-                        <div class="time-row">
-                            <span class="time-label">🔼 Sortie</span>
-                            <span class="time-value empty">--:--</span>
-                        </div>
-                    </div>
-                    <div class="duration">
-                        <div class="duration-label">Temps de travail</div>
-                        <div class="duration-value">6h 30m</div>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-action btn-entry" disabled>✅ Entrée</button>
-                        <button class="btn-action btn-exit" onclick="markExit(6)">🚪 Sortie</button>
-                    </div>
-                </div>
+                <!-- Les cartes seront injectées ici dynamiquement via JS -->
             </div>
         </div>
     </div>
@@ -729,7 +541,7 @@
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+            document.getElementById('currentTime').textContent = hours + ':' + minutes + ':' + seconds;
 
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const dateStr = now.toLocaleDateString('fr-FR', options);
@@ -741,7 +553,8 @@
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
-            document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('dateInput').value = yyyy + '-' + mm + '-' + dd;
+            loadAndRender(document.getElementById('dateInput').value);
         }
 
         function changeDate(days) {
@@ -752,21 +565,8 @@
             const yyyy = currentDate.getFullYear();
             const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
             const dd = String(currentDate.getDate()).padStart(2, '0');
-            dateInput.value = `${yyyy}-${mm}-${dd}`;
-        }
-
-        function markEntry(id) {
-            const now = new Date();
-            const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            alert(`Entrée enregistrée pour l'employé #${id} à ${time}`);
-        }
-
-        function markExit(id) {
-            const now = new Date();
-            const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            if (confirm(`Confirmer la sortie pour l'employé #${id} à ${time} ?`)) {
-                alert(`Sortie enregistrée à ${time}`);
-            }
+            dateInput.value = yyyy + '-' + mm + '-' + dd;
+            loadAndRender(dateInput.value);
         }
 
         document.getElementById('searchInput').addEventListener('input', function(e) {
@@ -776,6 +576,133 @@
                 card.style.display = text.includes(search) ? '' : 'none';
             });
         });
+
+        async function loadPointagesFor(dateStr) {
+            try {
+                const res = await fetch('/pointages/byDate?date=' + encodeURIComponent(dateStr));
+                if (!res.ok) throw new Error('Erreur réseau');
+                return await res.json();
+            } catch (err) {
+                console.error(err);
+                return [];
+            }
+        }
+
+        async function loadEmployees() {
+            try {
+                const res = await fetch('/employes/all');
+                if (!res.ok) throw new Error('Erreur réseau');
+                return await res.json();
+            } catch (e) {
+                console.error(e);
+                return [];
+            }
+        }
+
+        async function loadAndRender(dateStr) {
+            const [employees, pointages] = await Promise.all([loadEmployees(), loadPointagesFor(dateStr)]);
+            renderEmployeesWithPointages(employees, pointages);
+        }
+
+        function formatTime(t) {
+            if (!t) return '--:--';
+            if (typeof t === 'string') return t.substring(0,5);
+            // If JSON gives object, try to extract
+            try {
+                const d = new Date(t);
+                const hh = String(d.getHours()).padStart(2,'0');
+                const mm = String(d.getMinutes()).padStart(2,'0');
+                return hh + ':' + mm;
+            } catch(e) {
+                return '--:--';
+            }
+        }
+
+        function renderEmployeesWithPointages(employees, pointages) {
+            const grid = document.getElementById('pointagesGrid');
+            grid.innerHTML = '';
+
+            // build map of pointages by employe id
+            const map = {};
+            (pointages || []).forEach(p => {
+                const emp = p.employe || {};
+                const id = emp.idEmploye || emp.id || 0;
+                map[id] = p;
+            });
+
+            if (!employees || employees.length === 0) {
+                grid.innerHTML = '<p>Aucun employé.</p>';
+                return;
+            }
+
+            employees.forEach(emp => {
+                const id = emp.idEmploye || emp.id || 0;
+                const nom = emp.nom || '—';
+                const role = (emp.role && emp.role.nom) ? emp.role.nom : '';
+                const p = map[id];
+                const entree = p && p.heureEntree ? formatTime(p.heureEntree) : null;
+                const sortie = p && p.heureSortie ? formatTime(p.heureSortie) : null;
+
+                const statusClass = entree && !sortie ? 'present' : (!entree ? 'absent' : 'present');
+                const statusBadge = !entree ? '❌ Absent' : (entree && !sortie ? '🟢 En cours' : '✅ Présent');
+
+                const card = document.createElement('div');
+                card.className = 'employee-card ' + statusClass;
+
+                var inner = '';
+                inner += '<div class="employee-header">';
+                inner += '<div class="employee-avatar">👤</div>';
+                inner += '<div class="employee-info">';
+                inner += '<h3>' + nom + '</h3>';
+                inner += '<p>' + role + '</p>';
+                inner += '</div></div>';
+                inner += '<div class="status-badge">' + statusBadge + '</div>';
+                inner += '<div class="time-info">';
+                inner += '<div class="time-row"><span class="time-label">🔽 Entrée</span><span class="time-value">' + (entree ? entree : '<span class="empty">Non pointé</span>') + '</span></div>';
+                inner += '<div class="time-row"><span class="time-label">🔼 Sortie</span><span class="time-value">' + (sortie ? sortie : '<span class="empty">--:--</span>') + '</span></div>';
+                inner += '</div>';
+                inner += '<div class="action-buttons">';
+                inner += '<button class="btn-action btn-entry" ' + (entree ? 'disabled' : '') + ' onclick="markEntry(' + id + ')">✅ Entrée</button>';
+                inner += '<button class="btn-action btn-exit" ' + ((!entree || sortie) ? 'disabled' : '') + ' onclick="markExit(' + id + ')">🚪 Sortie</button>';
+                inner += '</div>';
+
+                card.innerHTML = inner;
+                grid.appendChild(card);
+            });
+        }
+
+        async function markEntry(id) {
+            const date = document.getElementById('dateInput').value;
+            if (!date) return alert('Sélectionnez une date');
+            try {
+                const res = await fetch('/pointages/entry/' + id + '?date=' + encodeURIComponent(date), { method: 'POST' });
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text || 'Erreur lors de l\'enregistrement');
+                }
+                await loadAndRender(date);
+            } catch (e) {
+                console.error(e);
+                alert('Erreur lors de l\'enregistrement de l\'entrée: ' + (e.message || ''));
+            }
+        }
+
+        async function markExit(id) {
+            const date = document.getElementById('dateInput').value;
+            if (!date) return alert('Sélectionnez une date');
+            if (!confirm('Confirmer la sortie ?')) return;
+            try {
+                const res = await fetch('/pointages/exit/' + id + '?date=' + encodeURIComponent(date), { method: 'POST' });
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text || 'Erreur lors de l\'enregistrement');
+                }
+                await loadAndRender(date);
+            } catch (e) {
+                console.error(e);
+                alert('Erreur lors de l\'enregistrement de la sortie: ' + (e.message || ''));
+            }
+        }
 
         setInterval(updateClock, 1000);
         updateClock();
