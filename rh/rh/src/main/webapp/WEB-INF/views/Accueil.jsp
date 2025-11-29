@@ -635,38 +635,7 @@
                 </div>
             </div>
 
-            <!-- Actions rapides -->
-            <div class="recent-activity">
-                <div class="activity-header">
-                    <h3>Actions Rapides</h3>
-                </div>
-                <div class="quick-actions">
-                    <div class="quick-action-btn">
-                        <i>➕</i>
-                        <span>Nouvel Employé</span>
-                    </div>
-                    <div class="quick-action-btn">
-                        <i>📝</i>
-                        <span>Nouveau Contrat</span>
-                    </div>
-                    <div class="quick-action-btn">
-                        <i>✅</i>
-                        <span>Marquer Présence</span>
-                    </div>
-                    <div class="quick-action-btn">
-                        <i>⏰</i>
-                        <span>Pointage</span>
-                    </div>
-                    <div class="quick-action-btn">
-                        <i>🏖️</i>
-                        <span>Gérer Congés</span>
-                    </div>
-                    <div class="quick-action-btn">
-                        <i>💰</i>
-                        <span>Avances</span>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Graphiques -->
             <div class="charts-grid">
