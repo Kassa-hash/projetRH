@@ -13,4 +13,7 @@ import java.util.Optional;
 public interface HistoriqueRepository extends JpaRepository<Historique, Long> {
     @Query("select h from Historique h order by idHistorique desc limit 5")
     List<Historique> recentHistorique();
+
+    @Query("select h from Historique h order by idHistorique desc")
+    List<Historique> getAllHistorique();
 }

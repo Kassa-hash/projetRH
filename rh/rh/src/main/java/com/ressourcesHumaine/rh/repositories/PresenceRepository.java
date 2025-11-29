@@ -19,4 +19,7 @@ public interface PresenceRepository extends JpaRepository<Presence, Long> {
 
     @Query("SELECT p FROM Presence p WHERE p.employe.idEmploye = :employeId AND p.datePresence = :date")
     Optional<Presence> findByEmployeIdAndDate(@Param("employeId") Long employeId, @Param("date") Date date);
+
+    @Query("SELECT COUNT(DISTINCT p.employe.idEmploye) FROM Presence p WHERE p.datePresence = CURRENT_DATE()")
+    int countDistinctEmployesPresentToday();
 }

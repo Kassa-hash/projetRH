@@ -591,8 +591,12 @@
                     <div class="stat-header">
                         <div class="stat-info">
                             <h3>Présents Aujourd'hui</h3>
-                            <div class="stat-value">142</div>
-                            <div class="stat-change positive">91.0% de taux</div>
+                            <div class="stat-value"> 
+                            <% 
+                                int presents = (int) request.getAttribute("nbpersonnepresentesnow");
+                                out.println(presents);
+                            %>
+                            </div>
                         </div>
                         <div class="stat-icon">✅</div>
                     </div>
@@ -779,18 +783,91 @@
                 </div>
 
                 <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>🎯 Présences Aujourd'hui</h3>
-                    </div>
-                    <div class="chart-placeholder">
-                        🥧 Graphique en camembert
-                    </div>
-                </div>
+    <div class="chart-header">
+        <h3>🎯 Répartition de la Présence (Aujourd'hui)</h3>
+    </div>
+    
+    <canvas id="presencePieChart" height="250"></canvas> 
+    
+    <%
+        // Récupération des valeurs passées par le contrôleur
+        int effectifNowChart = (int) request.getAttribute("effectifNow");
+        int nbPersonneCongeNow = (int) request.getAttribute("nbpersonnecongenow");
+        int nbPersonnePresentesNow = (int) request.getAttribute("nbpersonnepresentesnow");
+        
+        int absentsAutres = effectifNowChart - nbPersonnePresentesNow - nbPersonneCongeNow;
+        
+        if (absentsAutres < 0) {
+            absentsAutres = 0;
+        }
+
+    %>
+
+    <script>
+        const ctxPresence = document.getElementById('presencePieChart').getContext('2d');
+        
+        const present = <%= nbPersonnePresentesNow %>;
+        const conge = <%= nbPersonneCongeNow %>;
+        const autresAbsents = <%= absentsAutres %>;
+        
+        // On crée le graphique en camembert
+        new Chart(ctxPresence, {
+            type: 'pie',
+            data: {
+                labels: [
+                    'Présents', 
+                    'En Congé', 
+                    'Absents (Autres raisons)'
+                ],
+                datasets: [{
+                    data: [present, conge, autresAbsents],
+                    backgroundColor: [
+                        '#28a745', // Vert pour Présents
+                        '#ffc107', // Jaune pour Congé
+                        '#dc3545'  // Rouge pour Absents
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right', // Position de la légende à droite
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 14
+                            },
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed + ' (' + context.dataset.data[context.dataIndex] + ' employés)';
+                                }
+                                return label;
+                            }
+                        }
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</div>
             </div>
             <div class="recent-activity">
     <div class="activity-header">
         <h3>Activités Récentes</h3>
-        <button style="padding: 8px 16px; background: #4a7c2c; color: white; border: none; border-radius: 6px; cursor: pointer;">Voir tout</button>
+        <a href="/listeHistorique"><button style="padding: 8px 16px; background: #4a7c2c; color: white; border: none; border-radius: 6px; cursor: pointer;">Voir tout</button></a>
     </div>
     <div class="activity-list">
         <%

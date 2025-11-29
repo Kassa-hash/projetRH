@@ -27,4 +27,9 @@ public class HistoriqueService {
     public List<Historique> recentHistorique(){
         return historiqueRepository.recentHistorique();
     }
+
+    public List<Historique> getAllHistorique(){
+        return historiqueRepository.getAllHistorique();
+    }
+
 }
