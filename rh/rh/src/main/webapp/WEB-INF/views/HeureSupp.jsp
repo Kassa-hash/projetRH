@@ -778,138 +778,138 @@
         </div>
     </div>
 
-    <!-- Modal pour ajouter une heure supplémentaire -->
-    <div class="modal" id="addHeureSuppModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Nouvelle Heure Supplémentaire</h2>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="heureSuppForm">
+<!-- Modal pour ajouter une heure supplémentaire -->
+<div class="modal" id="addHeureSuppModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Nouvelle Heure Supplémentaire</h2>
+            <button class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="heureSuppForm">
+                <div class="form-group">
+                    <label for="employeSelect">Employé</label>
+                    <select id="employeSelect" class="form-control" required>
+                        <option value="">Chargement des employés...</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="employeSelect">Employé</label>
-                        <select id="employeSelect" class="form-control" required>
-                            <option value="">Sélectionner un employé</option>
-                            <option value="1">Martin Dupont - Développeur Senior</option>
-                            <option value="2">Sophie Leroy - Chef de Projet</option>
-                            <option value="3">Pierre Moreau - Comptable</option>
-                            <option value="4">Émilie Bernard - Designer</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="dateHeureSupp">Date</label>
-                            <input type="date" id="dateHeureSupp" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="dureeHeureSupp">Durée (heures)</label>
-                            <input type="number" id="dureeHeureSupp" class="form-control" step="0.5" min="0.5" max="12" required>
-                        </div>
+                        <label for="dateHeureSupp">Date</label>
+                        <input type="date" id="dateHeureSupp" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label for="motifHeureSupp">Motif</label>
-                        <textarea id="motifHeureSupp" class="form-control" rows="3" placeholder="Décrivez la raison des heures supplémentaires..." required></textarea>
+                        <label for="dureeHeureSupp">Durée (heures)</label>
+                        <input type="number" id="dureeHeureSupp" class="form-control" step="0.5" min="0.5" max="12" required>
                     </div>
-                    <div class="form-group">
-                        <label for="projetHeureSupp">Projet/Client</label>
-                        <input type="text" id="projetHeureSupp" class="form-control" placeholder="Projet concerné...">
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary close-modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="motifHeureSupp">Motif (facultatif)</label>
+                    <textarea id="motifHeureSupp" class="form-control" rows="3" placeholder="Décrivez la raison..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projetHeureSupp">Projet/Client (facultatif)</label>
+                    <input type="text" id="projetHeureSupp" class="form-control" placeholder="Projet concerné...">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary close-modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <script>
-        // Gestion des onglets principaux
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Retirer la classe active de tous les onglets
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+<script>
+    const addHeureSuppModal = document.getElementById('addHeureSuppModal');
+    const heureSuppForm = document.getElementById('heureSuppForm');
+    const employeSelect = document.getElementById('employeSelect');
 
-                // Ajouter la classe active à l'onglet cliqué
-                tab.classList.add('active');
-                const tabId = tab.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
+    // Charger la liste des employés au chargement de la page
+    async function loadEmployes() {
+        try {
+            const response = await fetch('/employes/api');
+            const employes = await response.json();
+
+            employeSelect.innerHTML = '<option value="">Sélectionner un employé</option>';
+
+employes.forEach(emp => {
+    const option = document.createElement('option');
+    option.value = emp.idEmploye; 
+    option.textContent = emp.nom; 
+    employeSelect.appendChild(option);
+});
+        } catch (err) {
+            employeSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+            console.error("Erreur chargement employés :", err);
+        }
+    }
+
+
+    // Soumission du formulaire → appel API
+    heureSuppForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const payload = {
+            idEmploye: parseInt(employeSelect.value),
+            date: document.getElementById('dateHeureSupp').value,
+            duree: document.getElementById('dureeHeureSupp').value
+        };
+
+        try {
+            const response = await fetch('/heures-supp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
             });
-        });
 
-        // Gestion du modal
-        const addHeureSuppBtn = document.getElementById('addHeureSuppBtn');
-        const addHeureSuppModal = document.getElementById('addHeureSuppModal');
-        const closeModalBtns = document.querySelectorAll('.close-btn, .close-modal');
+            if (response.ok) {
+                const saved = await response.json();
+                alert('Heure supplémentaire enregistrée avec succès !');
+                
+                // Optionnel : rafraîchir le tableau
+                location.reload(); // ou mieux : ajouter la ligne dynamiquement
 
-        addHeureSuppBtn.addEventListener('click', () => {
-            addHeureSuppModal.classList.add('active');
-        });
-
-        closeModalBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+                heureSuppForm.reset();
                 addHeureSuppModal.classList.remove('active');
-            });
-        });
+            } else {
+                const error = await response.text();
+                alert('Erreur : ' + error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Erreur réseau. Vérifiez votre connexion.');
+        }
+    });
 
-        // Soumettre le formulaire d'heure supplémentaire
-        document.getElementById('heureSuppForm').addEventListener('submit', (e) => {
-            e.preventDefault();
+    // Date du jour par défaut
+    document.getElementById('dateHeureSupp').valueAsDate = new Date();
 
-            const employe = document.getElementById('employeSelect').value;
-            const date = document.getElementById('dateHeureSupp').value;
-            const duree = document.getElementById('dureeHeureSupp').value;
-            const motif = document.getElementById('motifHeureSupp').value;
+    // Chargement initial des employés
+    document.addEventListener('DOMContentLoaded', loadEmployes);
 
-            alert(`Heure supplémentaire enregistrée pour l'employé ${employe} : ${duree}h le ${date}`);
-
-            // Réinitialiser le formulaire
-            document.getElementById('heureSuppForm').reset();
+    // Fermeture modal (inchangé)
+    document.querySelectorAll('.close-btn, .close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
             addHeureSuppModal.classList.remove('active');
         });
+    });
 
-        // Fermer le modal en cliquant en dehors
-        window.addEventListener('click', (e) => {
-            if (e.target === addHeureSuppModal) {
-                addHeureSuppModal.classList.remove('active');
-            }
-        });
-
-        // Gestion des boutons d'action dans le tableau
-        document.querySelectorAll('.btn-success').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const row = btn.closest('tr');
-                const id = row.cells[0].textContent;
-                const employe = row.cells[1].textContent.trim();
-                alert(`Heure supplémentaire ${id} validée pour ${employe}`);
-            });
-        });
-
-        document.querySelectorAll('.btn-danger').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const row = btn.closest('tr');
-                const id = row.cells[0].textContent;
-                if (confirm(`Êtes-vous sûr de vouloir supprimer l'heure supplémentaire ${id} ?`)) {
-                    row.remove();
-                }
-            });
-        });
-
-        // Simulation de données pour les statistiques
-        function updateStats() {
-            // Cette fonction pourrait récupérer les données réelles d'une API
-            console.log('Mise à jour des statistiques des heures supplémentaires...');
+    window.addEventListener('click', (e) => {
+        if (e.target === addHeureSuppModal) {
+            addHeureSuppModal.classList.remove('active');
         }
+    });
 
-        // Initialisation
-        updateStats();
+    document.getElementById('addHeureSuppBtn').addEventListener('click', () => {
+    addHeureSuppModal.classList.add('active');
+});
 
-        // Définir la date d'aujourd'hui par défaut
-        document.getElementById('dateHeureSupp').valueAsDate = new Date();
-    </script>
+</script>
 </body>
 </html>

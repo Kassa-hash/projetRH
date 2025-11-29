@@ -42,6 +42,13 @@ public class EmployeController {
         return "Employe";
     }
 
+    @GetMapping("/api")
+    @ResponseBody
+    public List<Employe> getEmployesApi() {
+        return employeService.getAllEmployes();
+    }
+
+
     // Formulaire d'ajout
     @GetMapping("/ajouter")
     public String showAddForm(Model model) {
