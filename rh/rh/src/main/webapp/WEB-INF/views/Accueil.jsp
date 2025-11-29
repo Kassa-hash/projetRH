@@ -522,10 +522,12 @@
                 <i>⏰</i>
                 <span>Pointages</span>
             </div></a>
-            <div class="menu-item">
-                <i>⏱️</i>
-                <span>Heures Supp</span>
-            </div>
+            <a href="/heures-supp">
+                <div class="menu-item">
+                    <i>⏱️</i>
+                    <span>Heures Supp</span>
+                </div>
+            </a>
             <a href="/demandes"><div class="menu-item">
                 <i>🏖️</i>
                 <span>Congés</span>

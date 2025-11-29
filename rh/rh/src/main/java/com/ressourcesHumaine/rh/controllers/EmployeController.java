@@ -46,6 +46,13 @@ public class EmployeController {
         return "Employe";
     }
 
+    @GetMapping("/api")
+    @ResponseBody
+    public List<Employe> getEmployesApi() {
+        return employeService.getAllEmployes();
+    }
+
+
     // JSON - récupérer tous les employés (pour usage AJAX)
     @GetMapping("/all")
     @ResponseBody
