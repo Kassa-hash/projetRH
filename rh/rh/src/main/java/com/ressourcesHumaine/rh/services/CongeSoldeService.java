@@ -21,4 +21,9 @@ public class CongeSoldeService {
     public CongeSolde save(CongeSolde solde){
         return congeSoldeRepository.save(solde);
     }
+
+    public int getSoldeByEmp(Long idEmp)
+    {
+        return congeSoldeRepository.soldeByEmploye(idEmp);
+    }
 }
