@@ -1,0 +1,231 @@
+✅ 1. Accueil (Michou)
+À vérifier :
+
+Design cohérent avec le dashboard
+
+Affichage des statistiques globales (si prévu)
+
+Navigation vers les principaux modules
+
+Messages d’accueil personnalisés (si login)
+
+Responsive mobile
+
+Aucun bouton / lien mort
+
+📊 2. Dashboard (Ambinintsoa)
+Vérification :
+
+Statistiques : employés, présences, congés, retards, heures supp…
+
+Graphiques fonctionnels (pas de valeurs vides, axes corrects)
+
+Mise à jour dynamique des données
+
+Boutons de navigation rapide opérationnels
+
+Filtre par mois / semaine / année (si prévu)
+
+Performance (chargement rapide)
+
+🌴 3. Module Congés (Miarisoa)
+Vérification :
+
+Soumission d’une demande de congé
+
+Validation / refus par RH
+
+Calcul automatique du solde restant
+
+Types de congé (annuel, maladie, sans solde…)
+
+Historique par employé
+
+Notification du statut (mail ou système interne)
+
+Gestion des justificatifs
+
+Bloquer les chevauchements de dates
+
+💸 4. Module Avance (Kassa)
+Vérification :
+
+Formulaire de demande d’avance
+
+Montant limite autorisé
+
+Validation par RH
+
+Historique des avances
+
+Déduction automatique sur la paie (si prévu)
+
+Export PDF ou impression
+
+Sécurité (un employé ne voit que ses demandes)
+
+👥 5. Module Employés (Michou)
+Vérification :
+
+Ajouter un employé
+
+Modifier / voir fiche employé
+
+Supprimer (ou désactiver) un employé
+
+Photo / documents personnels
+
+Informations essentielles : poste, contrat, salaire, dates…
+
+Filtre + recherche
+
+Export CSV / PDF (optionnel)
+
+Rôles et permissions (Admin, RH, Employé simple)
+
+📄 6. Gestion des documents (Kassa)
+Vérification :
+
+Upload de documents pour chaque employé
+
+Catégorie (contrat, attestation, fiche de paie, dossier perso…)
+
+Sécurité :
+
+Employé → voit ses documents
+
+RH/Admin → accès complet
+
+Prévisualisation PDF / image
+
+Téléchargement fonctionnel
+
+Historique ou versioning simple (optionnel)
+
+Taille max et format autorisé (PDF, JPG, PNG…)
+
+Suppression / archivage
+
+💰 7. Gestion de la paie (Kassa)
+Vérification :
+
+Salaire de base correct
+
+Intégration des heures supp
+
+Déduction absences / retard (si prévu)
+
+Prise en compte des avances
+
+Calcul automatique :
+
+Primes
+
+Indemnités
+
+Congés payés
+
+Génération fiche de paie en PDF
+
+Historique mensuel
+
+Export global (mois complet)
+
+Barème impôts / CNAPS / OSIE (si Madagascar)
+
+Double validation (sécurité)
+
+🕒 8. Gestion du pointage (Tsilavina)
+Vérification :
+
+Importation des pointages (CSV / automatique / manuel)
+
+Horaires d’entrée / sortie corrects
+
+Calcul total heures/jour
+
+Détection de retard / absence
+
+Lien avec module présence et paie
+
+Interface claire pour corriger les erreurs
+
+Historique
+
+📍 9. Présence (Tsilavina)
+Vérification :
+
+Liste quotidienne : présent, absent, retard
+
+Filtre par date / employé
+
+Justificatifs d’absence
+
+Export / impression
+
+Lien avec congés (si congé → auto “absent justifié”)
+
+⏱️ 10. Heures supplémentaires (Miarisoa / Ambinintsoa)
+Vérification :
+
+Saisie des heures supp
+
+Validation RH
+
+Taux horaire (1.3x, 1.5x, 2x… selon réglementation)
+
+Intégration dans la paie
+
+Historique par mois
+
+Export possible
+
+📑 11. Suivi de contrat (Tsilavina)
+Vérification :
+
+Type de contrat (CDD, CDI…)
+
+Date début / fin
+
+Alerte expiration
+
+Statut renouvelé / expiré / terminé
+
+Génération documents liés (optionnel)
+
+Lien avec dossier employé
+
+🧪 12. Tests généraux pour tout le site
+Sécurité :
+
+Authentification + JWT (ou autre) fonctionnelle
+
+Permissions (Admin/RH/Employé)
+
+Protection routes backend
+
+Protection contre injections SQL / XSS
+
+UX / UI :
+
+Pages responsive
+
+Messages d’erreur clairs
+
+Loading + success messages
+
+Performance :
+
+Temps de réponse API < 300 ms (idéal)
+
+Aucune répétition de requêtes inutiles
+
+Optimisation des images / PDF
+
+Fiabilité :
+
+Tests fonctionnels
+
+Tests unitaires (si mis en place)
+
+Pas de crash
