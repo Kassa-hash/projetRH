@@ -1,17 +1,4 @@
-✅ 1. Accueil (Michou)
-À vérifier :
 
-Design cohérent avec le dashboard
-
-Affichage des statistiques globales (si prévu)
-
-Navigation vers les principaux modules
-
-Messages d’accueil personnalisés (si login)
-
-Responsive mobile
-
-Aucun bouton / lien mort
 
 📊 2. Dashboard (Ambinintsoa)
 Vérification :
