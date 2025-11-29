@@ -3,11 +3,12 @@ package com.ressourcesHumaine.rh.controllers;
 import com.ressourcesHumaine.rh.entities.HeureSupp;
 import com.ressourcesHumaine.rh.services.HeureSuppService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Map;
+import java.util.List;
 
 @Controller
 @RequestMapping("/heures-supp")
@@ -16,28 +17,32 @@ public class HeureSuppController {
     @Autowired
     private HeureSuppService heureSuppService;
 
-    @PostMapping
-    @ResponseBody
-    public ResponseEntity<?> addHeureSupp(@RequestBody Map<String, Object> payload) {
-
-        try {
-            Long idEmploye = Long.valueOf(payload.get("idEmploye").toString());
-
-            HeureSupp heureSupp = new HeureSupp();
-            heureSupp.setDate(java.sql.Date.valueOf(payload.get("date").toString()));
-            heureSupp.setDuree(new java.math.BigDecimal(payload.get("duree").toString()));
-
-            HeureSupp saved = heureSuppService.createHeureSupp(heureSupp, idEmploye);
-
-            return ResponseEntity.ok(saved);
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Erreur : " + e.getMessage());
-        }
-    }
-
     @GetMapping
-    public String heuresSuppPage() {
-        return "HeureSupp"; // HeureSupp.jsp dans /WEB-INF/views/
+    public String heuresSuppPage(Model model) {
+        List<HeureSupp> heureSupps = heureSuppService.getAllHeuresSupp();
+        model.addAttribute("heuressupps", heureSupps);
+
+        // Calcul du total des heures du mois courant
+        double totalHeuresMois = heureSupps.stream()
+                .filter(heure -> {
+                    // Filtrer pour le mois courant (vous pouvez adapter cette logique)
+                    java.util.Date now = new java.util.Date();
+                    java.util.Calendar cal = java.util.Calendar.getInstance();
+                    cal.setTime(now);
+                    int moisCourant = cal.get(java.util.Calendar.MONTH);
+                    int anneeCourante = cal.get(java.util.Calendar.YEAR);
+
+                    cal.setTime(heure.getDate());
+                    int moisHeure = cal.get(java.util.Calendar.MONTH);
+                    int anneeHeure = cal.get(java.util.Calendar.YEAR);
+
+                    return moisHeure == moisCourant && anneeHeure == anneeCourante;
+                })
+                .mapToDouble(heure -> heure.getDuree().doubleValue())
+                .sum();
+
+        model.addAttribute("totalHeuresMois", totalHeuresMois);
+
+        return "HeureSupp";
     }
 }

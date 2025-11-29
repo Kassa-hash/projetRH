@@ -510,10 +510,7 @@
                 <i>📋</i>
                 <span>Contrats</span>
             </div></a>
-            <div class="menu-item">
-                <i>📁</i>
-                <span>Demandes</span>
-            </div>
+
             <a href="/presences"><div class="menu-item">
                 <i>✅</i>
                 <span>Présences</span>
