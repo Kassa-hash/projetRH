@@ -2,6 +2,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Contrats</title>
@@ -458,26 +461,32 @@
 
         <div class="content">
             <div class="stats">
-                <div class="stat-card">
-                    <h3>Total Contrats</h3>
-                    <div class="stat-value">8</div>
-                    <div class="stat-label">Contrats enregistrés</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Contrats Actifs</h3>
-                    <div class="stat-value">6</div>
-                    <div class="stat-label">En cours</div>
-                </div>
-                <div class="stat-card">
-                    <h3>CDI</h3>
-                    <div class="stat-value">4</div>
-                    <div class="stat-label">Contrats permanents</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Ce Mois</h3>
-                    <div class="stat-value">2</div>
-                    <div class="stat-label">Nouveaux contrats</div>
-                </div>
+                    <div class="stat-card">
+                        <h3>Total Contrats</h3>
+                        <div class="stat-value"><c:out value="${fn:length(contrats)}"/></div>
+                        <div class="stat-label">Contrats enregistrés</div>
+                    </div>
+                    <c:set var="activeCount" value="0" />
+                    <c:forEach items="${contrats}" var="ct">
+                        <c:if test="${ct.dateFin == null}">
+                            <c:set var="activeCount" value="${activeCount + 1}" />
+                        </c:if>
+                    </c:forEach>
+                    <div class="stat-card">
+                        <h3>Contrats Actifs</h3>
+                        <div class="stat-value"><c:out value="${activeCount}"/></div>
+                        <div class="stat-label">En cours</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Types enregistrés</h3>
+                        <div class="stat-value"><c:out value="${fn:length(typeContrats)}"/></div>
+                        <div class="stat-label">Types de contrat</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Employés</h3>
+                        <div class="stat-value"><c:out value="${fn:length(employes)}"/></div>
+                        <div class="stat-label">Employés présents en base</div>
+                    </div>
             </div>
 
             <div class="table-container">
@@ -493,116 +502,47 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <tr>
-                            <td>#001</td>
-                            <td>
-                                <div class="employe-info">
-                                    <div class="employe-avatar">👤</div>
-                                    <div class="employe-details">
-                                        <span class="employe-name">Jean Dupont</span>
-                                        <span class="employe-email">jean.dupont@email.com</span>
+                        <c:forEach items="${contrats}" var="ct">
+                            <tr>
+                                <td>#<c:out value="${ct.idContratEmploye}"/></td>
+                                <td>
+                                    <div class="employe-info">
+                                        <div class="employe-avatar">👤</div>
+                                        <div class="employe-details">
+                                            <span class="employe-name"><c:out value="${ct.employe.nom}"/></span>
+                                            <span class="employe-email"><c:out value="${ct.employe.email}"/></span>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-cdi">CDI</span></td>
-                            <td>15/01/2023</td>
-                            <td><span class="badge badge-actif">Actif</span></td>
-                            <td>
-                                <div class="actions">
-                                    <button class="btn btn-view" onclick="viewContrat(1)">👁️ Voir</button>
-                                    <button class="btn btn-edit" onclick="editContrat(1)">✏️ Modifier</button>
-                                    <button class="btn btn-delete" onclick="deleteContrat(1)">🗑️ Supprimer</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#002</td>
-                            <td>
-                                <div class="employe-info">
-                                    <div class="employe-avatar">👤</div>
-                                    <div class="employe-details">
-                                        <span class="employe-name">Marie Martin</span>
-                                        <span class="employe-email">marie.martin@email.com</span>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${ct.typeContrat != null}">
+                                            <span class="badge badge-cdi"><c:out value="${ct.typeContrat.libelle}"/></span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge">-</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td><fmt:formatDate value="${ct.date}" pattern="dd/MM/yyyy"/></td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${ct.dateFin == null}">
+                                            <span class="badge badge-actif">Actif</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge badge-expire">Expiré</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <div class="actions">
+                                        <a class="btn btn-view" href="/contrats/modifier/${ct.idContratEmploye}">👁️ Voir / Modifier</a>
+                                        <a class="btn btn-delete" href="/contrats/supprimer/${ct.idContratEmploye}" onclick="return confirm('Confirmer suppression ?')">🗑️ Supprimer</a>
                                     </div>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-cdi">CDI</span></td>
-                            <td>22/03/2023</td>
-                            <td><span class="badge badge-actif">Actif</span></td>
-                            <td>
-                                <div class="actions">
-                                    <button class="btn btn-view" onclick="viewContrat(2)">👁️ Voir</button>
-                                    <button class="btn btn-edit" onclick="editContrat(2)">✏️ Modifier</button>
-                                    <button class="btn btn-delete" onclick="deleteContrat(2)">🗑️ Supprimer</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#003</td>
-                            <td>
-                                <div class="employe-info">
-                                    <div class="employe-avatar">👤</div>
-                                    <div class="employe-details">
-                                        <span class="employe-name">Paul Razafindra</span>
-                                        <span class="employe-email">paul.raza@email.com</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-cdd">CDD</span></td>
-                            <td>10/06/2024</td>
-                            <td><span class="badge badge-actif">Actif</span></td>
-                            <td>
-                                <div class="actions">
-                                    <button class="btn btn-view" onclick="viewContrat(3)">👁️ Voir</button>
-                                    <button class="btn btn-edit" onclick="editContrat(3)">✏️ Modifier</button>
-                                    <button class="btn btn-delete" onclick="deleteContrat(3)">🗑️ Supprimer</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#004</td>
-                            <td>
-                                <div class="employe-info">
-                                    <div class="employe-avatar">👤</div>
-                                    <div class="employe-details">
-                                        <span class="employe-name">Sophie Bernard</span>
-                                        <span class="employe-email">sophie.b@email.com</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-stage">Stage</span></td>
-                            <td>01/09/2024</td>
-                            <td><span class="badge badge-actif">Actif</span></td>
-                            <td>
-                                <div class="actions">
-                                    <button class="btn btn-view" onclick="viewContrat(4)">👁️ Voir</button>
-                                    <button class="btn btn-edit" onclick="editContrat(4)">✏️ Modifier</button>
-                                    <button class="btn btn-delete" onclick="deleteContrat(4)">🗑️ Supprimer</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#005</td>
-                            <td>
-                                <div class="employe-info">
-                                    <div class="employe-avatar">👤</div>
-                                    <div class="employe-details">
-                                        <span class="employe-name">Luc Andriamana</span>
-                                        <span class="employe-email">luc.a@email.com</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-freelance">Freelance</span></td>
-                            <td>15/08/2024</td>
-                            <td><span class="badge badge-expire">Expiré</span></td>
-                            <td>
-                                <div class="actions">
-                                    <button class="btn btn-view" onclick="viewContrat(5)">👁️ Voir</button>
-                                    <button class="btn btn-edit" onclick="editContrat(5)">✏️ Modifier</button>
-                                    <button class="btn btn-delete" onclick="deleteContrat(5)">🗑️ Supprimer</button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        </c:forEach>
                     </tbody>
                 </table>
             </div>
@@ -617,33 +557,47 @@
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="contratForm">
+                <c:choose>
+                    <c:when test="${contrat != null and contrat.idContratEmploye != null}">
+                        <form id="contratForm" action="/contrats/modifier/${contrat.idContratEmploye}" method="post">
+                    </c:when>
+                    <c:otherwise>
+                        <form id="contratForm" action="/contrats/ajouter" method="post">
+                    </c:otherwise>
+                </c:choose>
                     <div class="form-group">
                         <label>Employé *</label>
-                        <select id="employe" required>
+                        <select id="employe" name="employe.idEmploye" required>
                             <option value="">Sélectionner un employé</option>
-                            <option value="1">Jean Dupont</option>
-                            <option value="2">Marie Martin</option>
-                            <option value="3">Paul Razafindra</option>
-                            <option value="4">Sophie Bernard</option>
-                            <option value="5">Luc Andriamana</option>
+                            <c:forEach items="${employes}" var="e">
+                                <option value="${e.idEmploye}" <c:if test="${contrat.employe != null and contrat.employe.idEmploye == e.idEmploye}">selected</c:if>>
+                                    <c:out value="${e.nom}"/> - <c:out value="${e.email}"/>
+                                </option>
+                            </c:forEach>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Type de Contrat *</label>
-                        <select id="typeContrat" required>
+                        <select id="typeContrat" name="typeContrat.idTypeContrat" required>
                             <option value="">Sélectionner un type</option>
-                            <option value="1">CDI - Contrat à Durée Indéterminée</option>
-                            <option value="2">CDD - Contrat à Durée Déterminée</option>
-                            <option value="3">Stage</option>
-                            <option value="4">Freelance</option>
-                            <option value="5">Apprentissage</option>
-                            <option value="6">Intérim</option>
+                            <c:forEach items="${typeContrats}" var="t">
+                                <option value="${t.idTypeContrat}" <c:if test="${contrat.typeContrat != null and contrat.typeContrat.idTypeContrat == t.idTypeContrat}">selected</c:if>>
+                                    <c:out value="${t.libelle}"/>
+                                </option>
+                            </c:forEach>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Date de Signature *</label>
-                        <input type="date" id="dateSignature" required>
+                        <input type="date" id="dateSignature" name="date" value="<%= (request.getAttribute("contrat") != null && ((com.ressourcesHumaine.rh.entities.ContratEmploye)request.getAttribute("contrat")).getDate() != null) ? new java.text.SimpleDateFormat("yyyy-MM-dd").format(((com.ressourcesHumaine.rh.entities.ContratEmploye)request.getAttribute("contrat")).getDate()) : "" %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date de Fin (facultatif)</label>
+                        <input type="date" id="dateFin" name="dateFin" value="<%= (request.getAttribute("contrat") != null && ((com.ressourcesHumaine.rh.entities.ContratEmploye)request.getAttribute("contrat")).getDateFin() != null) ? new java.text.SimpleDateFormat("yyyy-MM-dd").format(((com.ressourcesHumaine.rh.entities.ContratEmploye)request.getAttribute("contrat")).getDateFin()) : "" %>">
+                    </div>
+                    <div class="form-group">
+                        <label>Durée (en mois)</label>
+                        <input type="number" id="duree" name="duree" value="<%= (request.getAttribute("contrat") != null && ((com.ressourcesHumaine.rh.entities.ContratEmploye)request.getAttribute("contrat")).getDuree() != null) ? ((com.ressourcesHumaine.rh.entities.ContratEmploye)request.getAttribute("contrat")).getDuree() : "" %>">
                     </div>
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
@@ -730,11 +684,7 @@
             }
         }
 
-        document.getElementById('contratForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Contrat enregistré avec succès!');
-            closeModal();
-        });
+        // Le formulaire utilise maintenant un submit standard vers le contrôleur
 
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const search = e.target.value.toLowerCase();
@@ -768,6 +718,12 @@
         document.getElementById('detailModal').addEventListener('click', function(e) {
             if (e.target === this) closeDetailModal();
         });
+        
+        <c:if test="${contrat != null and contrat.idContratEmploye != null}">
+            // si on est en mode édition côté serveur, ouvrir le modal et pré-remplir
+            openModal();
+            document.getElementById('modalTitle').textContent = 'Modifier Contrat #<c:out value="${contrat.idContratEmploye}"/>';
+        </c:if>
     </script>
 </body>
 </html>

@@ -20,7 +20,41 @@ public class ContratEmployeService {
     @Autowired
     private ContratEmployeRepository contratemployeRepository;
 
-    //contrats actuels
+    // CRUD basique
+    public List<ContratEmploye> getAllContrats() {
+        return contratemployeRepository.findAll();
+    }
+
+    public java.util.Optional<ContratEmploye> getContratById(Long id) {
+        return contratemployeRepository.findById(id);
+    }
+
+    public ContratEmploye saveContrat(ContratEmploye contrat) {
+        return contratemployeRepository.save(contrat);
+    }
+
+    public ContratEmploye updateContrat(Long id, ContratEmploye updated) {
+        ContratEmploye existing = contratemployeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contrat non trouvé"));
+
+        existing.setDate(updated.getDate());
+        existing.setDateFin(updated.getDateFin());
+        existing.setDuree(updated.getDuree());
+        if (updated.getEmploye() != null)
+            existing.setEmploye(updated.getEmploye());
+        if (updated.getPoste() != null)
+            existing.setPoste(updated.getPoste());
+        if (updated.getTypeContrat() != null)
+            existing.setTypeContrat(updated.getTypeContrat());
+
+        return contratemployeRepository.save(existing);
+    }
+
+    public void deleteContrat(Long id) {
+        contratemployeRepository.deleteById(id);
+    }
+
+    // contrats actuels
     List<ContratEmploye> contratsActuels() {
         List<ContratEmploye> contrats = contratemployeRepository.contratsActuels();
         return contrats;
@@ -121,13 +155,13 @@ public class ContratEmployeService {
     public String getVariationClasseCss() {
         int diff = effectifNow() - effectifLastMonth();
         if (diff > 0) {
-            return "text-success";   // vert
+            return "text-success"; // vert
 
         }
         if (diff < 0) {
-            return "text-danger";    // rouge
+            return "text-danger"; // rouge
 
         }
-        return "text-muted";                   // gris
+        return "text-muted"; // gris
     }
 }
