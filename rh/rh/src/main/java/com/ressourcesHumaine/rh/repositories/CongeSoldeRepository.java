@@ -14,5 +14,8 @@ public interface CongeSoldeRepository extends JpaRepository<CongeSolde, Long> {
     
     @Query("select c from CongeSolde c where c.annee= :an and c.employe.idEmploye= :idEmp")
     CongeSolde getCongeEmpByAnnee(@Param("an") int annee,@Param("idEmp") Long idEmp);
+
+    @Query("select sum(c.nbJour) from CongeSolde c where c.employe.idEmploye= :idEmp")
+    int soldeByEmploye(@Param("idEmp") Long idEmp);
     
 }

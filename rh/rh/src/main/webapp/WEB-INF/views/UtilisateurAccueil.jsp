@@ -27,6 +27,10 @@
 
     //message
     String message=(String) request.getAttribute("message");
+
+    //nb de jours de conge
+    Integer soldeConge = (Integer) session.getAttribute("soldeConge");
+    if (soldeConge == null) soldeConge = 0; 
 %>
 
 <!DOCTYPE html>
@@ -93,6 +97,9 @@
         .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85em; color: #555; }
         .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
         .legend-dot.conge { background: linear-gradient(135deg, #4caf50, #2e7d32); }
+        .legend-dot.congerefused { background: linear-gradient(135deg, #af4c4cff, #cc2a2aff); }
+        .legend-dot.congewait { background: linear-gradient(135deg, #f4f73eff, #e4e428ff); }
+        .legend-dot.conge { background: linear-gradient(135deg, #4caf50, #2e7d32); }
         .legend-dot.today { background: #2196f3; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 
@@ -122,7 +129,12 @@
         .calendar-day.conge:hover { transform: scale(1.08); box-shadow: 0 8px 25px rgba(46, 125, 50, 0.4); }
         .conge-badge { font-size: 0.65em; background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 4px; margin-top: 2px; color: white; }
         .calendar-day.conge[data-tooltip]:hover::after { content: attr(data-tooltip); position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.75em; white-space: nowrap; z-index: 100; }
-
+        .calendar-day.conge-attente { background: linear-gradient(135deg, #fdd835, #f9a825); cursor: pointer; }
+        .calendar-day.conge-attente .day-number { color: white; }
+        .calendar-day.conge-attente:hover { transform: scale(1.08); box-shadow: 0 8px 25px rgba(249, 168, 37, 0.4); }
+        .calendar-day.conge-refuse { background: linear-gradient(135deg, #e53935, #c62828); cursor: pointer; }
+        .calendar-day.conge-refuse .day-number { color: white; }
+        .calendar-day.conge-refuse:hover { transform: scale(1.08); box-shadow: 0 8px 25px rgba(229, 57, 53, 0.4); }
         /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; }
         .modal { background: white; width: 90%; max-width: 500px; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3); animation: slideUp 0.4s ease; }
@@ -259,6 +271,17 @@
                 <div class="card-icon">📅</div>
                 <div class="card-title">Planning de mes Congés Validés</div>
             </div>
+            <div style="margin-bottom: 25px; padding: 20px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 16px; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
+            <h3 style="color: #1b5e20; margin-bottom: 8px; font-size: 1.4em;">Solde de congés restant</h3>
+            <div style="font-size: 2.8em; font-weight: 800; color: #2e7d32; line-height: 1;">
+                <%= soldeConge %> <span style="font-size: 0.5em; color: #1b5e20;">jours</span>
+            </div>
+            <% if (soldeConge <= 5 && soldeConge > 0) { %>
+                <p style="margin-top: 10px; color: #e65100; font-weight: 600;">Attention ! Il ne vous reste plus que quelques jours de congé.</p>
+            <% } else if (soldeConge == 0) { %>
+                <p style="margin-top: 10px; color: #c62828; font-weight: 600;">Vous n'avez plus de jours de congé disponibles.</p>
+            <% } %>
+        </div>
             <div class="calendar-header">
                 <div class="calendar-nav">
                     <button onclick="changeMonth(-1)">❮</button>
@@ -266,9 +289,12 @@
                     <button onclick="changeMonth(1)">❯</button>
                 </div>
                 <div class="calendar-legend">
+                    <div class="legend-item"><span class="legend-dot congerefused"></span><span>Congé refuse</span></div>
+                    <div class="legend-item"><span class="legend-dot congewait"></span><span>Congé en attente</span></div>
                     <div class="legend-item"><span class="legend-dot conge"></span><span>Congé validé</span></div>
                     <div class="legend-item"><span class="legend-dot today"></span><span>Aujourd'hui</span></div>
                 </div>
+
             </div>
             <div id="calendar-grid" class="calendar-grid"></div>
         </div>
@@ -392,7 +418,7 @@
 
 <script>
     // Congés validés (données du serveur)
-    const congesValides = [
+    /*const congesValides = [
         <% if (congesValides != null && !congesValides.isEmpty()) {
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
             for (int i = 0; i < congesValides.size(); i++) {
@@ -403,7 +429,21 @@
         <% } } else { %>
         { dateDebut: "2025-10-10", dateFin: "2025-10-12", motif: "Congé maternité" }
         <% } %>
-    ];
+    ];*/
+    // Toutes les demandes de congé (avec leur statut)
+const congesValides = [
+    <% if (toutesDemandes != null && !toutesDemandes.isEmpty()) {
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        for (int i = 0; i < toutesDemandes.size(); i++) {
+            DemandeConge dc = toutesDemandes.get(i);
+            String motifNom = (dc.getMotif() != null) ? dc.getMotif().getLibelle() : "Congé";
+            String status = dc.getStatus() != null ? dc.getStatus().toLowerCase() : "en attente";
+    %>
+    { dateDebut: "<%= sdf.format(dc.getDateDebut()) %>", dateFin: "<%= sdf.format(dc.getDateFin()) %>", motif: "<%= motifNom %>", status: "<%= status %>" }<%= (i < toutesDemandes.size() - 1) ? "," : "" %>
+    <% } } else { %>
+    { dateDebut: "2025-10-10", dateFin: "2025-10-12", motif: "Congé maternité", status: "validee" }
+    <% } %>
+];
 
     let currentDate = new Date();
     const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
@@ -492,9 +532,20 @@
             }
             
             // Congé
-            if (conge) {
+            /*if (conge) {
                 dayEl.classList.add('conge');
                 dayEl.setAttribute('data-tooltip', conge.motif + ' (' + conge.dateDebut + ' → ' + conge.dateFin + ')');
+            }*/
+            // Congé avec couleur selon le statut
+            if (conge) {
+                if (conge.status === 'validee') {
+                    dayEl.classList.add('conge');
+                } else if (conge.status === 'en attente' || conge.status === 'en-attente') {
+                    dayEl.classList.add('conge-attente');
+                } else if (conge.status === 'refusee') {
+                    dayEl.classList.add('conge-refuse');
+                }
+                dayEl.setAttribute('data-tooltip', conge.motif + ' (' + conge.status + ') - ' + conge.dateDebut + ' → ' + conge.dateFin);
             }
             
             const num = document.createElement('span');

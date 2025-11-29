@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import com.ressourcesHumaine.rh.services.CongeSoldeService;
 import com.ressourcesHumaine.rh.services.DemandeCongeService;
 
 @Controller
@@ -32,6 +33,9 @@ public class EmployeController {
 
     @Autowired
     private MoisService moisService;
+
+    @Autowired
+    private CongeSoldeService congeSoldeService;
 
     // Page principale - Liste des employés
     @GetMapping
@@ -134,11 +138,14 @@ public class EmployeController {
             List<Motif> motifs=motifService.motifsAll();
             //liste des mois
             List<Mois> mois=moisService.MoisAll();
+            //nb de jours de conge total
+            int nbJoursConge=congeSoldeService.getSoldeByEmp(emp.getIdEmploye());
             model.addAttribute("demandesConge",demandesByEmp);
             session.setAttribute("motifs",motifs);
             session.setAttribute("congesValides",demandesValid);
             session.setAttribute("utilisateur", emp);
             session.setAttribute("mois",mois);
+            session.setAttribute("soldeConge",nbJoursConge);
             return "UtilisateurAccueil";
 
         } catch (Exception e) {
