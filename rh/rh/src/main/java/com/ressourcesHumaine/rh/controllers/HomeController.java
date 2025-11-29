@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.ressourcesHumaine.rh.services.ContratEmployeService;
 import com.ressourcesHumaine.rh.services.EmployeService;
 import com.ressourcesHumaine.rh.services.HistoriqueService;
+import com.ressourcesHumaine.rh.services.PresenceService;
 import com.ressourcesHumaine.rh.services.DemandeCongeService;
 import com.ressourcesHumaine.rh.services.DemandeAvanceService;
 import jakarta.servlet.http.HttpSession;
@@ -36,6 +37,9 @@ public class HomeController {
 
     @Autowired
     public HistoriqueService historiqueService;
+
+    @Autowired
+    public PresenceService presenceService;
 
     @GetMapping("/")
     public String home(Model model, HttpSession session) {
@@ -81,6 +85,12 @@ public class HomeController {
         int nbDocValid=avanceValid+congeValid;
         model.addAttribute("docValid",nbDocValid);
 
+        //avoir le nb de personnes en conge ajd
+        int nbPersonneCongeNow=this.demandeCongeService.nbCongeValidesAjd();
+
+        //nb de personnes presentes ajd
+        int nbPersonnePresentesNow=this.presenceService.countDistinctEmployesPresentToday();
+
         int effectifLastMonth = contratService.effectifLastMonth();
         int effectifNow = contratService.effectifNow();
         String variationPourcentage = contratService.getVariationPourcentage();
@@ -90,7 +100,18 @@ public class HomeController {
         model.addAttribute("effectifNow", effectifNow);
         model.addAttribute("variationPourcentage", variationPourcentage);
         model.addAttribute("variationClasse", variationClasse);
+        model.addAttribute("nbpersonnecongenow",nbPersonneCongeNow);
+        model.addAttribute("nbpersonnepresentesnow",nbPersonnePresentesNow);
 
         return "Accueil";
+    }
+
+
+    @GetMapping("/listeHistorique")
+    public String goHistorique(Model model)
+    {
+        List<Historique> getAllHistoriques=this.historiqueService.getAllHistorique();
+        model.addAttribute("historique",getAllHistoriques);
+        return "Historique";
     }
 }

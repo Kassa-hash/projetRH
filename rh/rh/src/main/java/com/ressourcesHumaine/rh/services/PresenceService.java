@@ -75,4 +75,8 @@ public class PresenceService {
         return presenceRepository.existsById(id);
     }
 
+    public int countDistinctEmployesPresentToday(){
+        return this.presenceRepository.countDistinctEmployesPresentToday();
+    }
+
 }

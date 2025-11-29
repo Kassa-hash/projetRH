@@ -54,7 +54,9 @@ public class PresenceController {
         model.addAttribute("presences", presences);
         model.addAttribute("presence", new Presence());
         // fournir la liste des employés pour le formulaire et l'affichage
-        List<Employe> employes = employeService.getAllEmployes();
+        //List<Employe> employes = employeService.getAllEmployes();
+        //liste des employes actuels
+        List<Employe> employes = employeService.employesActuels();
         model.addAttribute("employes", employes);
 
         // calculer statistiques

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,5 +23,8 @@ List<DemandeConge> demandesValidByEmp(@Param("idemp") Long idEmp);
 
 @Query("select dc from DemandeConge dc where dc.employe.idEmploye= :idemp")
 List<DemandeConge> demandesByEmp(@Param("idemp") Long idEmp);
+
+@Query("SELECT COUNT(dc) FROM DemandeConge dc WHERE dc.status = 'validee' AND dc.dateDebut <= CURRENT_DATE() AND dc.dateFin >= CURRENT_DATE()")
+int countDemandesValideesAujourdhui();
 
 }

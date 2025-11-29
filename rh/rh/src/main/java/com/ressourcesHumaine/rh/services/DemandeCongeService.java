@@ -50,6 +50,11 @@ public class DemandeCongeService {
         return this.demandeCongeRepository.demandesByEmp(idEmp);
     }
 
+    public int nbCongeValidesAjd()
+    {
+        return this.demandeCongeRepository.countDemandesValideesAujourdhui();
+    }
+
     
 }
 
