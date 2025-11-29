@@ -24,7 +24,7 @@ public class EmployeController {
     @Autowired
     private EmployeService employeService;
 
-    @Autowired 
+    @Autowired
     private DemandeCongeService demandeCongeService;
 
     @Autowired
@@ -40,6 +40,13 @@ public class EmployeController {
         model.addAttribute("employes", employes);
         model.addAttribute("employe", new Employe());
         return "Employe";
+    }
+
+    // JSON - récupérer tous les employés (pour usage AJAX)
+    @GetMapping("/all")
+    @ResponseBody
+    public List<Employe> listeEmployesJson() {
+        return employeService.getAllEmployes();
     }
 
     // Formulaire d'ajout
@@ -99,24 +106,24 @@ public class EmployeController {
         }
     }
 
-    //aller au login
+    // aller au login
     @GetMapping("/goLogin")
-    public String goLogin(){
+    public String goLogin() {
         return "Utilisateur";
     }
 
-    //aller a l'utilisateur accueil
+    // aller a l'utilisateur accueil
     @GetMapping("/goAccueil")
-    public String goAccueilUtilisateur(){
+    public String goAccueilUtilisateur() {
         return "UtilisateurAccueil";
     }
 
-    //login 
+    // login
     @PostMapping("/login")
     public String login(@RequestParam String nom,
-                        @RequestParam String mdp,
-                        Model model,
-                        HttpSession session) {
+            @RequestParam String mdp,
+            Model model,
+            HttpSession session) {
 
         try {
             Employe emp = employeService.login(nom, mdp);
@@ -126,19 +133,19 @@ public class EmployeController {
                 return "Utilisateur";
             }
 
-            //liste des demandes validees
-            List<DemandeConge> demandesValid=demandeCongeService.demandesValidByEmp(emp.getIdEmploye());
-            //liste des demandes de l'employe
-            List<DemandeConge> demandesByEmp=demandeCongeService.demandesByEmp(emp.getIdEmploye());
-            //liste des motifs 
-            List<Motif> motifs=motifService.motifsAll();
-            //liste des mois
-            List<Mois> mois=moisService.MoisAll();
-            model.addAttribute("demandesConge",demandesByEmp);
-            session.setAttribute("motifs",motifs);
-            session.setAttribute("congesValides",demandesValid);
+            // liste des demandes validees
+            List<DemandeConge> demandesValid = demandeCongeService.demandesValidByEmp(emp.getIdEmploye());
+            // liste des demandes de l'employe
+            List<DemandeConge> demandesByEmp = demandeCongeService.demandesByEmp(emp.getIdEmploye());
+            // liste des motifs
+            List<Motif> motifs = motifService.motifsAll();
+            // liste des mois
+            List<Mois> mois = moisService.MoisAll();
+            model.addAttribute("demandesConge", demandesByEmp);
+            session.setAttribute("motifs", motifs);
+            session.setAttribute("congesValides", demandesValid);
             session.setAttribute("utilisateur", emp);
-            session.setAttribute("mois",mois);
+            session.setAttribute("mois", mois);
             return "UtilisateurAccueil";
 
         } catch (Exception e) {

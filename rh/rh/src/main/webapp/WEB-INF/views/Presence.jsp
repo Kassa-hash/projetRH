@@ -1,4 +1,5 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -576,11 +577,11 @@
         </header>
 
         <div class="controls">
-            <div class="date-selector">
+                <div class="date-selector">
                 <div class="date-nav">
                     <button class="btn-nav" onclick="changeDate(-1)">◀</button>
                 </div>
-                <input type="date" id="dateInput" value="2024-11-06">
+                <input type="date" id="dateInput" value="${selectedDate}">
                 <div class="date-nav">
                     <button class="btn-nav" onclick="changeDate(1)">▶</button>
                     <button class="btn-nav" onclick="setToday()" title="Aujourd'hui">📍</button>
@@ -599,22 +600,22 @@
             <div class="stats">
                 <div class="stat-card present">
                     <h3>Présents</h3>
-                    <div class="stat-value">8</div>
+                    <div class="stat-value">${presentCount}</div>
                     <div class="stat-label">Employés présents</div>
                 </div>
                 <div class="stat-card absent">
                     <h3>Absents</h3>
-                    <div class="stat-value">2</div>
+                    <div class="stat-value">${absentCount}</div>
                     <div class="stat-label">Employés absents</div>
                 </div>
                 <div class="stat-card total">
                     <h3>Total</h3>
-                    <div class="stat-value">10</div>
+                    <div class="stat-value">${totalCount}</div>
                     <div class="stat-label">Employés enregistrés</div>
                 </div>
                 <div class="stat-card taux">
                     <h3>Taux de Présence</h3>
-                    <div class="stat-value">80%</div>
+                    <div class="stat-value">${taux}%</div>
                     <div class="stat-label">Présence du jour</div>
                 </div>
             </div>
@@ -625,141 +626,34 @@
             </div>
 
             <div class="presence-grid" id="cardsView">
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Jean Dupont</h3>
-                            <p>Développeur</p>
-                        </div>
-                    </div>
-                    <div class="status-badge present">
-                        ✅ Présent
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-toggle btn-present" onclick="togglePresence(1, true)">✅ Présent</button>
-                        <button class="btn-toggle btn-absent" onclick="togglePresence(1, false)">❌ Absent</button>
-                    </div>
-                </div>
+                <c:forEach var="emp" items="${employes}">
+                    <c:set var="empPresent" value="false" />
+                    <c:forEach var="pr" items="${presences}">
+                        <c:if test="${pr.employe.idEmploye == emp.idEmploye and pr.statut}">
+                            <c:set var="empPresent" value="true" />
+                        </c:if>
+                    </c:forEach>
 
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Marie Martin</h3>
-                            <p>Chef de Projet</p>
+                    <div class="employee-card ${empPresent ? 'present' : 'absent'}">
+                        <div class="employee-header">
+                            <div class="employee-avatar">👤</div>
+                            <div class="employee-info">
+                                <h3>${emp.nom}</h3>
+                                <p>${emp.email}</p>
+                            </div>
+                        </div>
+                        <div class="status-badge ${empPresent ? 'present' : 'absent'}">
+                            <c:choose>
+                                <c:when test="${empPresent}">✅ Présent</c:when>
+                                <c:otherwise>❌ Absent</c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-toggle btn-present" onclick="togglePresence(${emp.idEmploye}, true)">✅ Présent</button>
+                            <button class="btn-toggle btn-absent" onclick="togglePresence(${emp.idEmploye}, false)">❌ Absent</button>
                         </div>
                     </div>
-                    <div class="status-badge present">
-                        ✅ Présent
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-toggle btn-present" onclick="togglePresence(2, true)">✅ Présent</button>
-                        <button class="btn-toggle btn-absent" onclick="togglePresence(2, false)">❌ Absent</button>
-                    </div>
-                </div>
-
-                <div class="employee-card absent">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Paul Razafindra</h3>
-                            <p>Analyste</p>
-                        </div>
-                    </div>
-                    <div class="status-badge absent">
-                        ❌ Absent
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-toggle btn-present" onclick="togglePresence(3, true)">✅ Présent</button>
-                        <button class="btn-toggle btn-absent" onclick="togglePresence(3, false)">❌ Absent</button>
-                    </div>
-                </div>
-
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Sophie Bernard</h3>
-                            <p>Designer</p>
-                        </div>
-                    </div>
-                    <div class="status-badge present">
-                        ✅ Présent
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-toggle btn-present" onclick="togglePresence(4, true)">✅ Présent</button>
-                        <button class="btn-toggle btn-absent" onclick="togglePresence(4, false)">❌ Absent</button>
-                    </div>
-                </div>
-
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Luc Andriamana</h3>
-                            <p>Technicien</p>
-                        </div>
-                    </div>
-                    <div class="status-badge present">
-                        ✅ Présent
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-toggle btn-present" onclick="togglePresence(5, true)">✅ Présent</button>
-                        <button class="btn-toggle btn-absent" onclick="togglePresence(5, false)">❌ Absent</button>
-                    </div>
-                </div>
-
-                <div class="employee-card absent">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Claire Rasoanaivo</h3>
-                            <p>Comptable</p>
-                        </div>
-                    </div>
-                    <div class="status-badge absent">
-                        ❌ Absent
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-toggle btn-present" onclick="togglePresence(6, true)">✅ Présent</button>
-                        <button class="btn-toggle btn-absent" onclick="togglePresence(6, false)">❌ Absent</button>
-                    </div>
-                </div>
-
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Thomas Rakoto</h3>
-                            <p>Manager</p>
-                        </div>
-                    </div>
-                    <div class="status-badge present">
-                        ✅ Présent
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-toggle btn-present" onclick="togglePresence(7, true)">✅ Présent</button>
-                        <button class="btn-toggle btn-absent" onclick="togglePresence(7, false)">❌ Absent</button>
-                    </div>
-                </div>
-
-                <div class="employee-card present">
-                    <div class="employee-header">
-                        <div class="employee-avatar">👤</div>
-                        <div class="employee-info">
-                            <h3>Emma Randria</h3>
-                            <p>RH</p>
-                        </div>
-                    </div>
-                    <div class="status-badge present">
-                        ✅ Présent
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-toggle btn-present" onclick="togglePresence(8, true)">✅ Présent</button>
-                        <button class="btn-toggle btn-absent" onclick="togglePresence(8, false)">❌ Absent</button>
-                    </div>
-                </div>
+                </c:forEach>
             </div>
 
             <div class="table-container" id="tableView" style="display: none;">
@@ -774,72 +668,46 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>#001</td>
-                            <td>
-                                <div class="employe-cell">
-                                    <div class="employe-avatar-small">👤</div>
-                                    <div class="employe-details">
-                                        <span class="employe-name">Jean Dupont</span>
-                                        <span class="employe-role">jean.dupont@email.com</span>
+                        <c:forEach var="emp" items="${employes}">
+                            <c:set var="rowPresent" value="false" />
+                            <c:forEach var="pr" items="${presences}">
+                                <c:if test="${pr.employe.idEmploye == emp.idEmploye and pr.statut}">
+                                    <c:set var="rowPresent" value="true" />
+                                </c:if>
+                            </c:forEach>
+                            <tr>
+                                <td>#${emp.idEmploye}</td>
+                                <td>
+                                    <div class="employe-cell">
+                                        <div class="employe-avatar-small">👤</div>
+                                        <div class="employe-details">
+                                            <span class="employe-name">${emp.nom}</span>
+                                            <span class="employe-role">${emp.email}</span>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>Développeur</td>
-                            <td class="status-cell">
-                                <span class="status-badge present">✅ Présent</span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-toggle btn-present" onclick="togglePresence(1, true)">✅</button>
-                                    <button class="btn-toggle btn-absent" onclick="togglePresence(1, false)">❌</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#002</td>
-                            <td>
-                                <div class="employe-cell">
-                                    <div class="employe-avatar-small">👤</div>
-                                    <div class="employe-details">
-                                        <span class="employe-name">Marie Martin</span>
-                                        <span class="employe-role">marie.martin@email.com</span>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${not empty emp.role}">${emp.role.libelle}</c:when>
+                                        <c:otherwise></c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td class="status-cell">
+                                    <span class="status-badge ${rowPresent ? 'present' : 'absent'}">
+                                        <c:choose>
+                                            <c:when test="${rowPresent}">✅ Présent</c:when>
+                                            <c:otherwise>❌ Absent</c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-toggle btn-present" onclick="togglePresence(${emp.idEmploye}, true)">✅</button>
+                                        <button class="btn-toggle btn-absent" onclick="togglePresence(${emp.idEmploye}, false)">❌</button>
                                     </div>
-                                </div>
-                            </td>
-                            <td>Chef de Projet</td>
-                            <td class="status-cell">
-                                <span class="status-badge present">✅ Présent</span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-toggle btn-present" onclick="togglePresence(2, true)">✅</button>
-                                    <button class="btn-toggle btn-absent" onclick="togglePresence(2, false)">❌</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#003</td>
-                            <td>
-                                <div class="employe-cell">
-                                    <div class="employe-avatar-small">👤</div>
-                                    <div class="employe-details">
-                                        <span class="employe-name">Paul Razafindra</span>
-                                        <span class="employe-role">paul.raza@email.com</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>Analyste</td>
-                            <td class="status-cell">
-                                <span class="status-badge absent">❌ Absent</span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-toggle btn-present" onclick="togglePresence(3, true)">✅</button>
-                                    <button class="btn-toggle btn-absent" onclick="togglePresence(3, false)">❌</button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        </c:forEach>
                     </tbody>
                 </table>
             </div>
@@ -853,21 +721,19 @@
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="presenceForm">
+                        <form id="presenceForm" method="post" action="${pageContext.request.contextPath}/presences/ajouter">
                     <div class="form-group">
                         <label>Employé *</label>
-                        <select id="employe" required>
+                        <select id="employe" name="employe.idEmploye" required>
                             <option value="">Sélectionner un employé</option>
-                            <option value="1">Jean Dupont</option>
-                            <option value="2">Marie Martin</option>
-                            <option value="3">Paul Razafindra</option>
-                            <option value="4">Sophie Bernard</option>
-                            <option value="5">Luc Andriamana</option>
+                            <c:forEach var="e" items="${employes}">
+                                <option value="${e.idEmploye}">${e.nom} - ${e.email}</option>
+                            </c:forEach>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Date *</label>
-                        <input type="date" id="datePresence" required>
+                        <input type="date" id="datePresence" name="datePresence" required value="${selectedDate}">
                     </div>
                     <div class="form-group">
                         <label>Statut *</label>
@@ -893,6 +759,7 @@
 
     <script>
         let currentView = 'cards';
+        const CONTEXT_PATH = '${pageContext.request.contextPath}';
 
         function setToday() {
             const today = new Date();
@@ -913,6 +780,7 @@
             const dd = String(currentDate.getDate()).padStart(2, '0');
             dateInput.value = `${yyyy}-${mm}-${dd}`;
             updateDisplayDate();
+            navigateToSelectedDate();
         }
 
         function updateDisplayDate() {
@@ -924,6 +792,17 @@
             const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
             document.getElementById('displayDate').textContent = capitalizedDate;
+        }
+
+        function navigateToSelectedDate() {
+            const dateVal = document.getElementById('dateInput').value;
+            if (!dateVal) return;
+            const url = CONTEXT_PATH + '/presences?date=' + encodeURIComponent(dateVal);
+            // navigate only if different from current location to avoid reload loops
+            const current = window.location.pathname + window.location.search;
+            if (!current.includes('date=' + dateVal)) {
+                window.location.href = url;
+            }
         }
 
         function toggleView(view) {
@@ -946,14 +825,24 @@
         }
 
         function togglePresence(employeId, isPresent) {
-            const message = isPresent ?
-                `Employé #${employeId} marqué comme PRÉSENT` :
-                `Employé #${employeId} marqué comme ABSENT`;
+            const date = document.getElementById('dateInput').value;
+            const url = window.location.origin + CONTEXT_PATH + '/presences/mark/' + employeId;
+            const body = 'date=' + encodeURIComponent(date) + '&statut=' + encodeURIComponent(isPresent);
 
-            alert(message);
-
-            // Simuler la mise à jour de l'interface
-            // Dans une vraie application, ceci enverrait une requête au backend
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: body
+            }).then(resp => {
+                if (resp.ok) {
+                    // recharger pour rafraîchir l'affichage
+                    window.location.reload();
+                } else {
+                    resp.text().then(t => alert('Erreur: ' + t));
+                }
+            }).catch(err => alert('Erreur réseau: ' + err));
         }
 
         function openModal() {
@@ -968,14 +857,22 @@
 
         document.getElementById('presenceForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const form = e.target;
+            const data = new URLSearchParams(new FormData(form));
+            const action = form.getAttribute('action') || (CONTEXT_PATH + '/presences/ajouter');
 
-            const employe = document.getElementById('employe').value;
-            const date = document.getElementById('datePresence').value;
-            const statut = document.querySelector('input[name="statut"]:checked').value;
-            const statutText = statut === 'true' ? 'PRÉSENT' : 'ABSENT';
-
-            alert(`Présence enregistrée!\nEmployé: ${employe}\nDate: ${date}\nStatut: ${statutText}`);
-            closeModal();
+            fetch(action, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: data.toString()
+            }).then(resp => {
+                if (resp.ok) {
+                    closeModal();
+                    window.location.reload();
+                } else {
+                    resp.text().then(t => alert('Erreur: ' + t));
+                }
+            }).catch(err => alert('Erreur réseau: ' + err));
         });
 
         document.getElementById('searchInput').addEventListener('input', function(e) {
@@ -996,7 +893,10 @@
             }
         });
 
-        document.getElementById('dateInput').addEventListener('change', updateDisplayDate);
+        document.getElementById('dateInput').addEventListener('change', function() {
+            updateDisplayDate();
+            navigateToSelectedDate();
+        });
 
         document.querySelectorAll('.status-option').forEach(option => {
             option.addEventListener('click', function() {
@@ -1013,7 +913,10 @@
         });
 
         window.addEventListener('DOMContentLoaded', function() {
-            setToday();
+            // n'écrase pas la date si le serveur a fourni une sélection
+            const dateInput = document.getElementById('dateInput');
+            if (!dateInput.value) setToday();
+            updateDisplayDate();
         });
     </script>
 </body>
