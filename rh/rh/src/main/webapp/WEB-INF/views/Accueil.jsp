@@ -559,10 +559,9 @@
         <div class="topbar">
             <h2>Tableau de Bord</h2>
             <div class="topbar-actions">
-                <button class="notification-btn">
+                <a href="/listeHistorique"><button class="notification-btn">
                     🔔
-                    <span class="notification-badge">5</span>
-                </button>
+                </button></a>
                 <button class="notification-btn">⚙️</button>
             </div>
         </div>
@@ -819,14 +818,12 @@
                 labels: [
                     'Présents', 
                     'En Congé', 
-                    'Absents (Autres raisons)'
                 ],
                 datasets: [{
                     data: [present, conge, autresAbsents],
                     backgroundColor: [
                         '#28a745', // Vert pour Présents
                         '#ffc107', // Jaune pour Congé
-                        '#dc3545'  // Rouge pour Absents
                     ],
                     hoverOffset: 4
                 }]
