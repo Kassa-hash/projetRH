@@ -527,24 +527,18 @@
             </a>
             <a href="/demandes"><div class="menu-item">
                 <i>🏖️</i>
-                <span>Congés</span>
+                <span>Demande de congés et d'avances'</span>
             </div></a>
+
               <a href="/employes/goLogin"><div class="menu-item">
                 <i>👥</i>
               <span>Utilisateur</span>
             </div></a>
-            <div class="menu-item">
-                <i>💰</i>
-                <span>Avances</span>
-            </div>
-            <div class="menu-item">
-                <i>⚙️</i>
-                <span>Paramètres</span>
-            </div>
-            <div class="menu-item">
-                 <i>💰</i>
-                  <span>Paie</span>
-            </div>
+
+              <a href="/paies"><div class="menu-item">
+                            <i>👥</i>
+                          <span>Gestion de paiement</span>
+                        </div></a>
              <div class="menu-item">
                 <i>📁</i>
                  <span>Gestion de document</span>

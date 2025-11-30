@@ -48,6 +48,10 @@ public class Employe {
     private Genre genre;
 
     @ManyToOne
+    @JoinColumn(name = "Id_Departement", nullable = true)
+    private Departement departement;
+
+    @ManyToOne
     @JoinColumn(name="Id_ContratEmploye")
     private ContratEmploye contratEmploye;
 
