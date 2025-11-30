@@ -3,6 +3,7 @@
 <%@ page import="com.ressourcesHumaine.rh.entities.Employe" %>
 <%@ page import="com.ressourcesHumaine.rh.entities.ContratEmploye" %>
 <%@ page import="com.ressourcesHumaine.rh.entities.Departement" %>
+<%@ page import="com.ressourcesHumaine.rh.entities.Poste" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -11,6 +12,7 @@
     <title>Système de Gestion de Paie</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* [Vos styles CSS restent exactement les mêmes] */
         * {
             margin: 0;
             padding: 0;
@@ -415,55 +417,98 @@
                         <tbody>
                             <%
                                 List<Employe> employes = (List<Employe>) request.getAttribute("employes");
-                                if (employes != null) {
+                                if (employes != null && !employes.isEmpty()) {
+                                    int index = 0;
                                     for (Employe employe : employes) {
+                                        // Vérification de sécurité pour éviter les ID null ou 0
+                                        if (employe.getIdEmploye() == null || employe.getIdEmploye() <= 0) {
+                                            continue; // Skip les employés avec ID invalide
+                                        }
+
                                         // Récupération des informations du contrat et département
                                         ContratEmploye contrat = employe.getContratEmploye();
                                         Departement dept = employe.getDepartement();
 
-                                        // Valeurs statiques pour les calculs de paie (à remplacer par vos vraies données)
-                                        double salaireBase = 1500000.0; // Valeur par défaut
-                                        int heuresSupp = 5; // Valeur par défaut
+                                        // Valeurs par défaut pour les nouveaux employés sans contrat
+                                        double salaireBase = 0.0;
+                                        int heuresSupp = 0;
+                                        String dateEmbauche = "N/A";
+                                        String poste = "N/A";
+                                        String nomDepartement = "N/A";
 
-                                        if (contrat != null) {
-                                            // Si vous avez un champ salaire dans ContratEmploye, utilisez-le ici
-                                            // salaireBase = contrat.getSalaireBase();
+                                        // Gestion du nom de l'employé
+                                        String nomEmploye = (employe.getNom() != null && !employe.getNom().trim().isEmpty())
+                                            ? employe.getNom()
+                                            : "Employé " + employe.getIdEmploye();
+
+                                        // Gestion du département
+                                        if (dept != null && dept.getNom() != null) {
+                                            nomDepartement = dept.getNom();
                                         }
 
-                                        // Calculs statiques pour la démonstration
-                                        double salaireBrut = salaireBase * 1.1; // +10% pour heures supp
+                                        if (contrat != null) {
+                                            // Récupération de la date d'embauche
+                                            if (contrat.getDateDebut() != null) {
+                                                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+                                                dateEmbauche = sdf.format(contrat.getDateDebut());
+                                            }
+
+                                            // Récupération du poste
+                                            if (contrat.getPoste() != null) {
+                                                poste = contrat.getPoste();
+                                            }
+                                        }
+
+                                        // Attribution de salaires de base selon le poste (valeurs statiques pour la démo)
+                                        if (poste.contains("Développeur") || poste.contains("Developer")) {
+                                            salaireBase = 1800000.0;
+                                            heuresSupp = 8;
+                                        } else if (poste.contains("Chef") || poste.contains("Manager")) {
+                                            salaireBase = 2500000.0;
+                                            heuresSupp = 5;
+                                        } else if (poste.contains("Analyste") || poste.contains("Analyst")) {
+                                            salaireBase = 2200000.0;
+                                            heuresSupp = 6;
+                                        } else if (poste.contains("Responsable") || poste.contains("Responsible")) {
+                                            salaireBase = 2800000.0;
+                                            heuresSupp = 3;
+                                        } else {
+                                            // Salaire par défaut pour les autres postes
+                                            salaireBase = 1500000.0;
+                                            heuresSupp = 4;
+                                        }
+
+                                        // Calculs de paie
+                                        double tauxHoraireSupp = salaireBase / 173.33 * 1.5; // 173.33 heures/mois
+                                        double majorationHeuresSupp = heuresSupp * tauxHoraireSupp;
+                                        double salaireBrut = salaireBase + majorationHeuresSupp;
                                         double cnaps1 = salaireBrut * 0.01;
                                         double cnaps8 = salaireBrut * 0.08;
                                         double ostie1 = salaireBrut * 0.01;
                                         double ostie5 = salaireBrut * 0.05;
                                         double revenuImposable = salaireBrut - cnaps1 - ostie1;
-                                        double irsa = revenuImposable * 0.1; // 10% pour l'exemple
+
+                                        // Calcul IRSA progressif (exemple simplifié)
+                                        double irsa = 0.0;
+                                        if (revenuImposable > 350000) {
+                                            double tranche1 = Math.min(revenuImposable - 350000, 300000) * 0.05;
+                                            double tranche2 = Math.max(0, revenuImposable - 650000) * 0.10;
+                                            double tranche3 = Math.max(0, revenuImposable - 1000000) * 0.15;
+                                            double tranche4 = Math.max(0, revenuImposable - 1500000) * 0.20;
+                                            irsa = tranche1 + tranche2 + tranche3 + tranche4;
+                                        }
+
                                         double salaireNet = salaireBrut - cnaps8 - ostie5 - irsa;
-                                        double avance = 50000.0; // Valeur statique
+                                        double avance = (salaireNet > 200000) ? 50000.0 : 0.0; // Avance conditionnelle
                                         double netAPayer = salaireNet - avance;
+
+                                        index++;
                             %>
                             <tr>
-                                <td><%= employe.getNom() != null ? employe.getNom() : "N/A" %></td>
-                                <td>
-                                    <%
-                                        if (contrat != null && contrat.getDateDebut() != null) {
-                                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
-                                            out.print(sdf.format(contrat.getDateDebut()));
-                                        } else {
-                                            out.print("N/A");
-                                        }
-                                    %>
-                                </td>
-                                <td>
-                                    <%
-                                        if (contrat != null && contrat.getPoste() != null) {
-                                            out.print(contrat.getPoste());
-                                        } else {
-                                            out.print("N/A");
-                                        }
-                                    %>
-                                </td>
-                                <td><%= dept != null && dept.getNom() != null ? dept.getNom() : "N/A" %></td>
+                                <td><%= nomEmploye %></td>
+                                <td><%= dateEmbauche %></td>
+                                <td><%= poste %></td>
+                                <td><%= nomDepartement %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", salaireBase) %></td>
                                 <td class="text-right"><%= heuresSupp %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", salaireBrut) %></td>
@@ -526,7 +571,6 @@
         // Fonction pour afficher les détails
         function afficherDetails(employeId) {
             // Pour l'instant, on utilise des données statiques
-            // Vous devrez implémenter un appel AJAX pour récupérer les vraies données
             const detailsContent = document.getElementById('detailsContent');
 
             detailsContent.innerHTML = `
@@ -557,26 +601,11 @@
         // Fonction pour charger les détails complets (à implémenter)
         function chargerDetailsComplets(employeId) {
             alert(`Chargement des détails pour l'employé ${employeId}\n\nÀ implémenter avec une requête AJAX vers le serveur.`);
-            // Exemple d'implémentation AJAX :
-            /*
-            fetch('/api/employes/' + employeId + '/details-paie')
-                .then(response => response.json())
-                .then(data => {
-                    // Mettre à jour le contenu du modal avec les données reçues
-                    afficherDetailsComplets(data);
-                });
-            */
         }
 
         // Fonction pour générer PDF (simulation)
         function genererPDF(employeId) {
             alert(`Génération du PDF pour l'employé ${employeId}\n\nCette fonctionnalité sera implémentée avec une bibliothèque PDF comme jsPDF.`);
-            // Implémentation avec jsPDF :
-            /*
-            const pdf = new jsPDF();
-            pdf.text(`Bulletin de paie - Employé ${employeId}`, 20, 20);
-            pdf.save(`bulletin-paie-${employeId}.pdf`);
-            */
         }
 
         // Fonction pour fermer le modal
@@ -607,22 +636,6 @@
                 if (e.target === this) {
                     fermerModal();
                 }
-            });
-
-            // Filtres (à implémenter)
-            document.getElementById('filterMonth').addEventListener('change', function() {
-                // Implémenter le filtrage
-                console.log('Filtre mois:', this.value);
-            });
-
-            document.getElementById('filterYear').addEventListener('change', function() {
-                // Implémenter le filtrage
-                console.log('Filtre année:', this.value);
-            });
-
-            document.getElementById('filterDepartment').addEventListener('change', function() {
-                // Implémenter le filtrage
-                console.log('Filtre département:', this.value);
             });
         });
     </script>

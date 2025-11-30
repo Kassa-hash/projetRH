@@ -19,11 +19,20 @@ public class PaieController {
 
     @GetMapping
     public String showPaie(Model model) {
-        List<Employe> employes = employeService.employesActuels();
-
-
-
-        model.addAttribute("employes", employes);
-        return "Paie"; // Retourne le nom de la JSP (Paie.jsp)
+        try {
+            List<Employe> employes = employeService.employesActuels();
+            // Filtrer les employés pour éviter ceux avec des relations problématiques
+            if (employes != null) {
+                employes = employes.stream()
+                        .filter(employe -> employe.getIdEmploye() != null && employe.getIdEmploye() > 0)
+                        .toList();
+            }
+            model.addAttribute("employes", employes);
+            return "Paie";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("employes", java.util.Collections.emptyList());
+            return "Paie";
+        }
     }
 }

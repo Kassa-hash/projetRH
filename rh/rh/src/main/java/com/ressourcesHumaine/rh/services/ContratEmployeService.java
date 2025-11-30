@@ -2,6 +2,8 @@ package com.ressourcesHumaine.rh.services;
 
 import com.ressourcesHumaine.rh.entities.ContratEmploye;
 import com.ressourcesHumaine.rh.repositories.ContratEmployeRepository;
+import com.ressourcesHumaine.rh.services.HistoriqueService;
+import com.ressourcesHumaine.rh.entities.Historique;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,9 @@ public class ContratEmployeService {
     @Autowired
     private ContratEmployeRepository contratemployeRepository;
 
+    @Autowired
+    private HistoriqueService historiqueService;
+
     // CRUD basique
     public List<ContratEmploye> getAllContrats() {
         return contratemployeRepository.findAll();
@@ -30,7 +35,19 @@ public class ContratEmployeService {
     }
 
     public ContratEmploye saveContrat(ContratEmploye contrat) {
-        return contratemployeRepository.save(contrat);
+        ContratEmploye saved = contratemployeRepository.save(contrat);
+        try {
+            Historique h = new Historique();
+            h.setDescription("ContratEmploye créé");
+            String details = "Contrat id=" + (saved.getIdContratEmploye() != null ? saved.getIdContratEmploye() : "?")
+                    + ", employe=" + (saved.getEmploye() != null ? saved.getEmploye().getNom() : "-");
+            h.setDetails(details);
+            h.setIdEvenement(saved.getIdContratEmploye() != null ? saved.getIdContratEmploye().intValue() : 0);
+            h.setClasse(ContratEmploye.class);
+            historiqueService.saveHistorique(h);
+        } catch (Exception ignore) {
+        }
+        return saved;
     }
 
     public ContratEmploye updateContrat(Long id, ContratEmploye updated) {
@@ -47,11 +64,38 @@ public class ContratEmployeService {
         if (updated.getTypeContrat() != null)
             existing.setTypeContrat(updated.getTypeContrat());
 
-        return contratemployeRepository.save(existing);
+        ContratEmploye saved = contratemployeRepository.save(existing);
+        try {
+            Historique h = new Historique();
+            h.setDescription("ContratEmploye modifié");
+            String details = "Contrat id=" + (saved.getIdContratEmploye() != null ? saved.getIdContratEmploye() : "?")
+                    + ", employe=" + (saved.getEmploye() != null ? saved.getEmploye().getNom() : "-");
+            h.setDetails(details);
+            h.setIdEvenement(saved.getIdContratEmploye() != null ? saved.getIdContratEmploye().intValue() : 0);
+            h.setClasse(ContratEmploye.class);
+            historiqueService.saveHistorique(h);
+        } catch (Exception ignore) {
+        }
+        return saved;
     }
 
     public void deleteContrat(Long id) {
+        // try to capture some info before deletion
+        Optional<ContratEmploye> opt = contratemployeRepository.findById(id);
         contratemployeRepository.deleteById(id);
+        try {
+            Historique h = new Historique();
+            h.setDescription("ContratEmploye supprimé");
+            String details = "Contrat id=" + id;
+            if (opt.isPresent() && opt.get().getEmploye() != null) {
+                details += ", employe=" + opt.get().getEmploye().getNom();
+            }
+            h.setDetails(details);
+            h.setIdEvenement(id != null ? id.intValue() : 0);
+            h.setClasse(ContratEmploye.class);
+            historiqueService.saveHistorique(h);
+        } catch (Exception ignore) {
+        }
     }
 
     // contrats actuels
@@ -76,13 +120,13 @@ public class ContratEmployeService {
 
         LocalDate debutPeriode = switch (periode) {
             case "6mois" ->
-                aujourdHui.minusMonths(6).withDayOfMonth(1);
+                    aujourdHui.minusMonths(6).withDayOfMonth(1);
             case "12mois" ->
-                aujourdHui.minusMonths(12).withDayOfMonth(1);
+                    aujourdHui.minusMonths(12).withDayOfMonth(1);
             case "annee" ->
-                LocalDate.of(aujourdHui.getYear(), 1, 1);
+                    LocalDate.of(aujourdHui.getYear(), 1, 1);
             default ->
-                aujourdHui.minusMonths(6).withDayOfMonth(1);
+                    aujourdHui.minusMonths(6).withDayOfMonth(1);
         };
 
         // 1. Créer tous les mois de la période
