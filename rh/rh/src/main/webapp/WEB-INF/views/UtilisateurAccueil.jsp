@@ -394,8 +394,20 @@
             <h3>💰 Demande d'Avance</h3>
             <button class="close-btn" onclick="closeModal('avance')">&times;</button>
         </div>
+        <%
+            String messageAvance = (String)request.getAttribute("messageAvance");
+            String typeAvance = (String)request.getAttribute("typeAvance");
+        %>
+
+        <!-- Dans l'onglet Avances, ajoutez ceci après le filtre -->
+        <% if (messageAvance != null && !messageAvance.isEmpty()) { %>
+            <div class="alert alert-<%= "succes".equals(typeAvance) ? "success" : "danger" %> alert-dismissible">
+                <%= messageAvance %>
+                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
+            </div>
+        <% } %>
         <div class="modal-body">
-            <form action="/demande/avance" method="POST">
+            <form action="/demandes/avance" method="POST">
                 <div class="form-group">
                     <label>Mois concerné</label>
                     <% if(mois!=null && !mois.isEmpty()){%>

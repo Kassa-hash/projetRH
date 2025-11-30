@@ -1,34 +1,23 @@
 package com.ressourcesHumaine.rh.controllers;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 
+import com.ressourcesHumaine.rh.entities.*;
+import com.ressourcesHumaine.rh.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import com.ressourcesHumaine.rh.services.ContratEmployeService;
-import com.ressourcesHumaine.rh.services.EmployeService;
-
 import jakarta.servlet.http.HttpSession;
 
-import com.ressourcesHumaine.rh.entities.Employe;
-import com.ressourcesHumaine.rh.entities.DemandeConge;
-import com.ressourcesHumaine.rh.entities.CongeSolde;
-import com.ressourcesHumaine.rh.entities.DemandeAvance;
 import com.ressourcesHumaine.rh.repositories.ContratEmployeRepository;
 
 import org.springframework.ui.Model;
-
-import com.ressourcesHumaine.rh.entities.Historique;
-import com.ressourcesHumaine.rh.services.DemandeCongeService;
-import com.ressourcesHumaine.rh.services.DemandeAvanceService;
-import com.ressourcesHumaine.rh.services.HistoriqueService;
-import com.ressourcesHumaine.rh.services.CongeSoldeService;
-import com.ressourcesHumaine.rh.services.MotifService;
 
 @Controller
 @RequestMapping("/demandes")
@@ -38,6 +27,9 @@ public class DemandeController {
     DemandeCongeService demandeCongeService;
 
     @Autowired
+   MoisService moisService;
+
+    @Autowired
     DemandeAvanceService demandeAvanceService;
     
     @Autowired
@@ -45,6 +37,10 @@ public class DemandeController {
 
     @Autowired
     CongeSoldeService congeSoldeService;
+
+    @Autowired
+    EmployeService employeService;
+
 
     @Autowired
     MotifService motifService;
@@ -207,4 +203,102 @@ public class DemandeController {
         return employeController.login(emp.getNom(),emp.getMdp(),model,session);
     }
 }
+
+    @PostMapping("/avance")
+    public String demanderAvance(
+            @RequestParam("montant") BigDecimal montant,
+            @RequestParam("moisId") Long moisId,
+            HttpSession session,
+            Model model) {
+        Employe empSession = (Employe) session.getAttribute("utilisateur");
+        Employe emp = employeService.findByIdWithContrat(empSession.getIdEmploye());
+        String message = "";
+
+        try {
+            System.out.println("=== DEBUT DEMANDE AVANCE ===");
+            System.out.println("Employé: " + emp.getNom());
+            System.out.println("Montant: " + montant);
+            System.out.println("Mois ID: " + moisId);
+
+            // Vérifications de base
+            if (emp == null) {
+                throw new DemandeAvanceException("Employé non connecté");
+            }
+
+            if (montant == null || montant.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new DemandeAvanceException("Montant invalide");
+            }
+
+            Mois mois = moisService.findById(moisId);
+            System.out.println("Mois trouvé: " + (mois != null ? mois.getLibelle() : "null"));
+
+            if (mois == null) {
+                throw new DemandeAvanceException("Mois invalide");
+            }
+
+            // Vérifier le contrat et le poste
+            if (emp.getContratEmploye() == null) {
+                throw new DemandeAvanceException("Aucun contrat trouvé pour cet employé");
+            }
+
+            if (emp.getContratEmploye().getPoste() == null) {
+                throw new DemandeAvanceException("Aucun poste défini pour cet employé");
+            }
+
+            BigDecimal salaireDeBase = emp.getContratEmploye().getPoste().getSalaireDeBase();
+            System.out.println("Salaire de base: " + salaireDeBase);
+
+            if (salaireDeBase == null) {
+                throw new DemandeAvanceException("Salaire de base non défini");
+            }
+
+            // Vérifier si une avance existe déjà pour ce mois
+            boolean dejaDemande = demandeAvanceService.hasDejaDemandeAvanceCeMois(emp, mois);
+            System.out.println("Déjà une demande ce mois: " + dejaDemande);
+
+            if (dejaDemande) {
+                throw new DemandeAvanceException("Vous avez déjà une demande d'avance pour ce mois");
+            }
+
+            // Vérifier le montant (80% du salaire)
+            BigDecimal limite = salaireDeBase.multiply(new BigDecimal("0.8"));
+            System.out.println("Limite autorisée: " + limite);
+
+            if (montant.compareTo(limite) > 0) {
+                throw new DemandeAvanceException(
+                        String.format("Le montant demandé (%,.0f Ar) dépasse la limite autorisée (%,.0f Ar)",
+                                montant, limite)
+                );
+            }
+
+            // Créer la demande
+            DemandeAvance demande = new DemandeAvance();
+            demande.setEmploye(emp);
+            demande.setMontant(montant);
+            demande.setMois(mois);
+            demande.setDate(new Date());
+            demande.setStatus("en attente");
+
+            DemandeAvance savedDemande = demandeAvanceService.save(demande);
+            System.out.println("Demande sauvegardée avec ID: " + savedDemande.getIdDemandeAvance());
+
+            message = "Votre demande d'avance a été enregistrée avec succès";
+            model.addAttribute("message", message);
+
+        } catch (DemandeAvanceException e) {
+            System.out.println("Erreur métier: " + e.getMessage());
+            message = "Erreur : " + e.getMessage();
+            model.addAttribute("message", message);
+        } catch (Exception e) {
+            System.out.println("Erreur technique: " + e.getMessage());
+            e.printStackTrace(); // Cette ligne est cruciale pour voir la stacktrace complète
+            message = "Une erreur technique est survenue: " + e.getMessage();
+            model.addAttribute("message", message);
+        }
+
+        return employeController.login(emp.getNom(), emp.getMdp(), model, session);
+    }
+
+
+
 }

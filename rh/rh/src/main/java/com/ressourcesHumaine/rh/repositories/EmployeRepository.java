@@ -47,5 +47,14 @@ public interface EmployeRepository extends JpaRepository<Employe, Long> {
     @Query("select c from Employe c where c.nom= :nom and c.mdp= :mdp")
     Employe login(@Param("nom") String nom,@Param("mdp") String mdp);
 
+   // @Query("SELECT e FROM Employe e LEFT JOIN FETCH e.contrat_employe LEFT JOIN FETCH e.contratEmploye.poste WHERE e.idEmploye = :id")
+    //Optional<Employe> findByIdWithContratAndPoste(@Param("id") Long id);
+
+
+    @Query("SELECT e.Id_Employe, e.nom, e.id_contrat_employe , c.id_contrat_employe , c.Id_Poste\n" +
+            "FROM Employe e\n" +
+            "LEFT JOIN contrat_employe c ON e.id_contrat_employe  = c.id_contrat_employe\n" +
+            "WHERE e.Id_Employe = :id")
+    Optional<Employe> findByIdWithContrat(@Param("id") Long id);
     
 }

@@ -3,6 +3,7 @@ package com.ressourcesHumaine.rh.services;
 import com.ressourcesHumaine.rh.entities.Employe;
 import com.ressourcesHumaine.rh.repositories.EmployeRepository;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.ressourcesHumaine.rh.entities.ContratEmploye;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EmployeService {
@@ -150,6 +152,23 @@ public class EmployeService {
     {
         return employeRepository.login(nom, mdp);
     }
+
+
+    @Transactional(readOnly = true)
+    public Employe findByIdWithContrat(Long id) {
+        Employe emp = employeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employé non trouvé"));
+
+        // Force le chargement avec EAGER, donc pas besoin de code supplémentaire
+        // Mais on peut vérifier :
+        if (emp.getContratEmploye() != null) {
+            Hibernate.initialize(emp.getContratEmploye().getPoste());
+        }
+
+        return emp;
+    }
+
+
 
 }
 

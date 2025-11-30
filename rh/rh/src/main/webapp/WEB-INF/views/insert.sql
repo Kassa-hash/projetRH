@@ -80,3 +80,9 @@ INSERT INTO poste (libelle, salaire_de_base) VALUES
 -- Solde de congé
 INSERT INTO conge_solde (annee, nb_jour, id_employe)
 VALUES (2025, 30, 3);
+
+
+SELECT e.Id_Employe, e.nom, e.id_contrat_employe , c.id_contrat_employe , c.Id_Poste
+FROM Employe e
+LEFT JOIN contrat_employe c ON e.id_contrat_employe  = c.id_contrat_employe
+WHERE e.Id_Employe = 6;

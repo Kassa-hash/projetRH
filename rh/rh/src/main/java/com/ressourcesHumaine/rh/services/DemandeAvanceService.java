@@ -1,11 +1,14 @@
 package com.ressourcesHumaine.rh.services;
 
 import com.ressourcesHumaine.rh.entities.DemandeAvance;
+import com.ressourcesHumaine.rh.entities.Employe;
+import com.ressourcesHumaine.rh.entities.Mois;
 import com.ressourcesHumaine.rh.repositories.DemandeAvanceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -25,11 +28,24 @@ public class DemandeAvanceService {
         return demandes;
     }
 
+    public DemandeAvance save(DemandeAvance demandeAvance) {
+        return demandeAvanceRepository.save(demandeAvance);
+    }
+
     public List<DemandeAvance> demandeAll(){
         return demandeAvanceRepository.findAll();
     }
 
     public int nbAvanceValid(){
         return demandeAvanceRepository.nbAvanceValid();
+    }
+
+    public boolean hasDejaDemandeAvanceCeMois(Employe employe, Mois mois) {
+        return demandeAvanceRepository.countByEmployeAndMois(employe, mois) > 0;
+    }
+
+    public boolean isMontantValide(BigDecimal montant, BigDecimal salaireDeBase) {
+        BigDecimal limite = salaireDeBase.multiply(new BigDecimal("0.8"));
+        return montant.compareTo(limite) <= 0;
     }
 }

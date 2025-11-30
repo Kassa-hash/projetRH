@@ -24,4 +24,9 @@ public class MoisService {
         return moisRepository.findAll();
     }
 
+    public Mois findById(Long id) {
+        Optional<Mois> optional = moisRepository.findById(id);
+        return optional.orElse(null);
+    }
+
 }
