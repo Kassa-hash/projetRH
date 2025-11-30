@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.ressourcesHumaine.rh.entities.ContratEmploye;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,13 +126,19 @@ public class EmployeService {
     }
 
     //avoir les employes actuels 
-    public List<Employe> employesActuels()
-    {
-        List<ContratEmploye> contrats=employesService.contratsActuels();
-        List<Employe> allEmployes=new ArrayList<>();
+    @Transactional(readOnly = true)
+    public List<Employe> employesActuels() {
+        List<ContratEmploye> contrats = employesService.contratsActuels();
+        List<Employe> allEmployes = new ArrayList<>();
 
-        for(ContratEmploye contrat:contrats){
-            allEmployes.add(contrat.getEmploye());
+        for (ContratEmploye contrat : contrats) {
+            if (contrat != null && contrat.getEmploye() != null) {
+                Employe employe = contrat.getEmploye();
+                // Forcer le chargement de l'employé sans charger son contrat
+                if (employe.getIdEmploye() != null && employe.getIdEmploye() > 0) {
+                    allEmployes.add(employe);
+                }
+            }
         }
 
         return allEmployes;

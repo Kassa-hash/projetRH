@@ -56,5 +56,7 @@ public interface EmployeRepository extends JpaRepository<Employe, Long> {
 //            "LEFT JOIN contrat_employe c ON e.id_contrat_employe  = c.id_contrat_employe\n" +
 //            "WHERE e.Id_Employe = :id")
 //    Optional<Employe> findByIdWithContrat(@Param("id") Long id);
+
+    List<Employe> findByContratEmployeIdContratEmployeIn(List<Long> contratIds);
     
 }

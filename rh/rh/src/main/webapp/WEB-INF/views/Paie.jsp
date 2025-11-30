@@ -1,5 +1,7 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
 <%@ page import="java.util.List" %>
+<%@ page import="java.math.BigDecimal" %>
+<%@ page import="java.math.RoundingMode" %>
 <%@ page import="com.ressourcesHumaine.rh.entities.Employe" %>
 <%@ page import="com.ressourcesHumaine.rh.entities.ContratEmploye" %>
 <%@ page import="com.ressourcesHumaine.rh.entities.Departement" %>
@@ -430,7 +432,7 @@
                                         Departement dept = employe.getDepartement();
 
                                         // Valeurs par défaut pour les nouveaux employés sans contrat
-                                        double salaireBase = 0.0;
+                                        BigDecimal salaireBase = BigDecimal.ZERO;
                                         int heuresSupp = 0;
                                         String dateEmbauche = "N/A";
                                         String poste = "N/A";
@@ -448,59 +450,92 @@
 
                                         if (contrat != null) {
                                             // Récupération de la date d'embauche
-                                            if (contrat.getDateDebut() != null) {
+                                            if (contrat.getDate() != null) {
                                                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
-                                                dateEmbauche = sdf.format(contrat.getDateDebut());
+                                                dateEmbauche = sdf.format(contrat.getDate());
                                             }
 
                                             // Récupération du poste
-                                            if (contrat.getPoste() != null) {
-                                                poste = contrat.getPoste();
+                                            if (contrat.getPoste() != null && contrat.getPoste().getSalaireDeBase() != null) {
+                                                poste = contrat.getPoste().getLibelle();
+                                                salaireBase = contrat.getPoste().getSalaireDeBase();
                                             }
                                         }
 
-                                        // Attribution de salaires de base selon le poste (valeurs statiques pour la démo)
-                                        if (poste.contains("Développeur") || poste.contains("Developer")) {
-                                            salaireBase = 1800000.0;
-                                            heuresSupp = 8;
-                                        } else if (poste.contains("Chef") || poste.contains("Manager")) {
-                                            salaireBase = 2500000.0;
-                                            heuresSupp = 5;
-                                        } else if (poste.contains("Analyste") || poste.contains("Analyst")) {
-                                            salaireBase = 2200000.0;
-                                            heuresSupp = 6;
-                                        } else if (poste.contains("Responsable") || poste.contains("Responsible")) {
-                                            salaireBase = 2800000.0;
-                                            heuresSupp = 3;
-                                        } else {
-                                            // Salaire par défaut pour les autres postes
-                                            salaireBase = 1500000.0;
-                                            heuresSupp = 4;
+                                        // Calculs de paie avec BigDecimal
+                                        BigDecimal heuresParMois = new BigDecimal("173.33");
+                                        BigDecimal tauxMajoration = new BigDecimal("1.5");
+
+                                        // Taux horaire normal = salaireBase / 173.33
+                                        BigDecimal tauxHoraireNormal = salaireBase.divide(heuresParMois, 2, RoundingMode.HALF_UP);
+
+                                        // Taux horaire supplémentaire = taux horaire normal * 1.5
+                                        BigDecimal tauxHoraireSupp = tauxHoraireNormal.multiply(tauxMajoration);
+
+                                        // Majoration heures supplémentaires
+                                        BigDecimal majorationHeuresSupp = tauxHoraireSupp.multiply(new BigDecimal(heuresSupp));
+
+                                        // Salaire brut = salaire de base + majoration heures supp
+                                        BigDecimal salaireBrut = salaireBase.add(majorationHeuresSupp);
+
+                                        // Calcul des cotisations
+                                        BigDecimal cnaps1 = salaireBrut.multiply(new BigDecimal("0.01")).setScale(0, RoundingMode.HALF_UP);
+                                        BigDecimal cnaps8 = salaireBrut.multiply(new BigDecimal("0.08")).setScale(0, RoundingMode.HALF_UP);
+                                        BigDecimal ostie1 = salaireBrut.multiply(new BigDecimal("0.01")).setScale(0, RoundingMode.HALF_UP);
+                                        BigDecimal ostie5 = salaireBrut.multiply(new BigDecimal("0.05")).setScale(0, RoundingMode.HALF_UP);
+
+                                        // Revenu imposable = salaire brut - cnaps1 - ostie1
+                                        BigDecimal revenuImposable = salaireBrut.subtract(cnaps1).subtract(ostie1);
+
+                                        // Calcul IRSA progressif avec BigDecimal
+                                        BigDecimal irsa = BigDecimal.ZERO;
+                                        BigDecimal seuil1 = new BigDecimal("350000");
+                                        BigDecimal seuil2 = new BigDecimal("650000");
+                                        BigDecimal seuil3 = new BigDecimal("1000000");
+                                        BigDecimal seuil4 = new BigDecimal("1500000");
+
+                                        if (revenuImposable.compareTo(seuil1) > 0) {
+                                            BigDecimal tranche1 = revenuImposable.subtract(seuil1);
+                                            if (tranche1.compareTo(new BigDecimal("300000")) > 0) {
+                                                tranche1 = new BigDecimal("300000");
+                                            }
+                                            irsa = irsa.add(tranche1.multiply(new BigDecimal("0.05")));
                                         }
 
-                                        // Calculs de paie
-                                        double tauxHoraireSupp = salaireBase / 173.33 * 1.5; // 173.33 heures/mois
-                                        double majorationHeuresSupp = heuresSupp * tauxHoraireSupp;
-                                        double salaireBrut = salaireBase + majorationHeuresSupp;
-                                        double cnaps1 = salaireBrut * 0.01;
-                                        double cnaps8 = salaireBrut * 0.08;
-                                        double ostie1 = salaireBrut * 0.01;
-                                        double ostie5 = salaireBrut * 0.05;
-                                        double revenuImposable = salaireBrut - cnaps1 - ostie1;
-
-                                        // Calcul IRSA progressif (exemple simplifié)
-                                        double irsa = 0.0;
-                                        if (revenuImposable > 350000) {
-                                            double tranche1 = Math.min(revenuImposable - 350000, 300000) * 0.05;
-                                            double tranche2 = Math.max(0, revenuImposable - 650000) * 0.10;
-                                            double tranche3 = Math.max(0, revenuImposable - 1000000) * 0.15;
-                                            double tranche4 = Math.max(0, revenuImposable - 1500000) * 0.20;
-                                            irsa = tranche1 + tranche2 + tranche3 + tranche4;
+                                        if (revenuImposable.compareTo(seuil2) > 0) {
+                                            BigDecimal tranche2 = revenuImposable.subtract(seuil2);
+                                            if (tranche2.compareTo(new BigDecimal("350000")) > 0) {
+                                                tranche2 = new BigDecimal("350000");
+                                            }
+                                            irsa = irsa.add(tranche2.multiply(new BigDecimal("0.10")));
                                         }
 
-                                        double salaireNet = salaireBrut - cnaps8 - ostie5 - irsa;
-                                        double avance = (salaireNet > 200000) ? 50000.0 : 0.0; // Avance conditionnelle
-                                        double netAPayer = salaireNet - avance;
+                                        if (revenuImposable.compareTo(seuil3) > 0) {
+                                            BigDecimal tranche3 = revenuImposable.subtract(seuil3);
+                                            if (tranche3.compareTo(new BigDecimal("500000")) > 0) {
+                                                tranche3 = new BigDecimal("500000");
+                                            }
+                                            irsa = irsa.add(tranche3.multiply(new BigDecimal("0.15")));
+                                        }
+
+                                        if (revenuImposable.compareTo(seuil4) > 0) {
+                                            BigDecimal tranche4 = revenuImposable.subtract(seuil4);
+                                            irsa = irsa.add(tranche4.multiply(new BigDecimal("0.20")));
+                                        }
+
+                                        irsa = irsa.setScale(0, RoundingMode.HALF_UP);
+
+                                        // Salaire net = salaire brut - cnaps8 - ostie5 - irsa
+                                        BigDecimal salaireNet = salaireBrut.subtract(cnaps8).subtract(ostie5).subtract(irsa);
+
+                                        // Avance conditionnelle
+                                        BigDecimal avance = BigDecimal.ZERO;
+                                        if (salaireNet.compareTo(new BigDecimal("200000")) > 0) {
+                                            avance = new BigDecimal("50000");
+                                        }
+
+                                        // Net à payer = salaire net - avance
+                                        BigDecimal netAPayer = salaireNet.subtract(avance);
 
                                         index++;
                             %>

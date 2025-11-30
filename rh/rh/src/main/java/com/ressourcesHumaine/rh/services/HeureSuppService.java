@@ -16,4 +16,6 @@ public class HeureSuppService {
     public List<HeureSupp> getAllHeuresSupp() {
         return heureSuppRepository.findAll();
     }
+
+    
 }
