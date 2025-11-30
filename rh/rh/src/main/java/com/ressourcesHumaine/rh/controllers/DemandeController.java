@@ -291,7 +291,7 @@ public class DemandeController {
             model.addAttribute("message", message);
         } catch (Exception e) {
             System.out.println("Erreur technique: " + e.getMessage());
-            e.printStackTrace(); // Cette ligne est cruciale pour voir la stacktrace complète
+            e.printStackTrace();
             message = "Une erreur technique est survenue: " + e.getMessage();
             model.addAttribute("message", message);
         }
@@ -300,5 +300,24 @@ public class DemandeController {
     }
 
 
+    @GetMapping("/approuverAvance")
+    public String approuverAvance(@RequestParam("id") Integer id,Model model,HttpSession session)
+    {
+        DemandeAvance demande=demandeAvanceService.findById(id);
+        demande.setStatus("validee");
+        demande=demandeAvanceService.save(demande);
+        String message="Conge accepte";
+        model.addAttribute("messageConge",message);
+        model.addAttribute("typeConge","succes");
+
+        //creer l'historique qui correspond
+        Historique historique=new Historique();
+        historique.setDescription("Avance valide");
+
+        //details
+        Employe emp=demande.getEmploye();
+
+        return this.goDemande(model);
+    }
 
 }

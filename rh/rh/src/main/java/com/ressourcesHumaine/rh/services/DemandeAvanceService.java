@@ -9,13 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
-import java.util.*;
-import java.util.TreeMap;
 
 @Service
 public class DemandeAvanceService {
@@ -47,5 +41,10 @@ public class DemandeAvanceService {
     public boolean isMontantValide(BigDecimal montant, BigDecimal salaireDeBase) {
         BigDecimal limite = salaireDeBase.multiply(new BigDecimal("0.8"));
         return montant.compareTo(limite) <= 0;
+    }
+
+    public DemandeAvance findById(int id) {
+        return demandeAvanceRepository.findById((long) id)
+                .orElse(null);
     }
 }

@@ -383,7 +383,7 @@ String status = (rawStatus != null) ? rawStatus.trim().toLowerCase() : "";
     function approveAvance(id) { 
         if(confirm("Approuver cette avance ?")) {
             // TODO: Remplacer par un appel POST propre
-            location.href = "/approuverAvance?id=" + id; 
+            location.href = "/demandes/approuverAvance?id=" + id;
         } 
     }
     function rejectAvance(id)  { 
