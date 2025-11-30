@@ -4,6 +4,8 @@ import com.ressourcesHumaine.rh.entities.Pointage;
 import com.ressourcesHumaine.rh.entities.Employe;
 import com.ressourcesHumaine.rh.repositories.PointageRepository;
 import com.ressourcesHumaine.rh.repositories.EmployeRepository;
+import com.ressourcesHumaine.rh.services.HistoriqueService;
+import com.ressourcesHumaine.rh.entities.Historique;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +24,23 @@ public class PointageService {
     @Autowired
     private EmployeRepository employeRepository;
 
+    @Autowired
+    private HistoriqueService historiqueService;
+
     public Pointage savePointage(Pointage pointage) {
-        return pointageRepository.save(pointage);
+        Pointage saved = pointageRepository.save(pointage);
+        try {
+            Historique h = new Historique();
+            h.setDescription("Pointage créé");
+            String details = "Pointage id=" + (saved.getIdPointage() != null ? saved.getIdPointage() : "?")
+                    + ", employe=" + (saved.getEmploye() != null ? saved.getEmploye().getNom() : "-");
+            h.setDetails(details);
+            h.setIdEvenement(saved.getIdPointage() != null ? saved.getIdPointage().intValue() : 0);
+            h.setClasse(Pointage.class);
+            historiqueService.saveHistorique(h);
+        } catch (Exception ignore) {
+        }
+        return saved;
     }
 
     public List<Pointage> getAllPointages() {
@@ -56,7 +73,19 @@ public class PointageService {
         }
         Time now = Time.valueOf(LocalTime.now());
         p.setHeureEntree(now);
-        return pointageRepository.save(p);
+        Pointage saved = pointageRepository.save(p);
+        try {
+            Historique h = new Historique();
+            h.setDescription("Pointage entrée");
+            String details = "Pointage id=" + (saved.getIdPointage() != null ? saved.getIdPointage() : "?")
+                    + ", employeId=" + (saved.getEmploye() != null ? saved.getEmploye().getIdEmploye() : "-");
+            h.setDetails(details);
+            h.setIdEvenement(saved.getIdPointage() != null ? saved.getIdPointage().intValue() : 0);
+            h.setClasse(Pointage.class);
+            historiqueService.saveHistorique(h);
+        } catch (Exception ignore) {
+        }
+        return saved;
     }
 
     public Pointage markExit(Long employeId, Date date) {
@@ -65,7 +94,19 @@ public class PointageService {
             Pointage p = existing.get();
             Time now = Time.valueOf(LocalTime.now());
             p.setHeureSortie(now);
-            return pointageRepository.save(p);
+            Pointage saved = pointageRepository.save(p);
+            try {
+                Historique h = new Historique();
+                h.setDescription("Pointage sortie");
+                String details = "Pointage id=" + (saved.getIdPointage() != null ? saved.getIdPointage() : "?")
+                        + ", employeId=" + (saved.getEmploye() != null ? saved.getEmploye().getIdEmploye() : "-");
+                h.setDetails(details);
+                h.setIdEvenement(saved.getIdPointage() != null ? saved.getIdPointage().intValue() : 0);
+                h.setClasse(Pointage.class);
+                historiqueService.saveHistorique(h);
+            } catch (Exception ignore) {
+            }
+            return saved;
         } else {
             throw new RuntimeException(
                     "Aucun pointage d'entrée trouvé pour l'employé " + employeId + " à la date " + date);
@@ -84,7 +125,19 @@ public class PointageService {
             p.setHeureEntree(details.getHeureEntree());
             p.setHeureSortie(details.getHeureSortie());
             p.setEmploye(details.getEmploye());
-            return pointageRepository.save(p);
+            Pointage saved = pointageRepository.save(p);
+            try {
+                Historique h = new Historique();
+                h.setDescription("Pointage modifié");
+                String det = "Pointage id=" + (saved.getIdPointage() != null ? saved.getIdPointage() : "?")
+                        + ", employe=" + (saved.getEmploye() != null ? saved.getEmploye().getNom() : "-");
+                h.setDetails(det);
+                h.setIdEvenement(saved.getIdPointage() != null ? saved.getIdPointage().intValue() : 0);
+                h.setClasse(Pointage.class);
+                historiqueService.saveHistorique(h);
+            } catch (Exception ignore) {
+            }
+            return saved;
         } else {
             throw new RuntimeException("Pointage non trouvé avec l'ID: " + id);
         }
@@ -92,7 +145,21 @@ public class PointageService {
 
     public void deletePointage(Long id) {
         if (pointageRepository.existsById(id)) {
+            Optional<Pointage> opt = pointageRepository.findById(id);
             pointageRepository.deleteById(id);
+            try {
+                Historique h = new Historique();
+                h.setDescription("Pointage supprimé");
+                String details = "Pointage id=" + id;
+                if (opt.isPresent() && opt.get().getEmploye() != null) {
+                    details += ", employe=" + opt.get().getEmploye().getNom();
+                }
+                h.setDetails(details);
+                h.setIdEvenement(id != null ? id.intValue() : 0);
+                h.setClasse(Pointage.class);
+                historiqueService.saveHistorique(h);
+            } catch (Exception ignore) {
+            }
         } else {
             throw new RuntimeException("Pointage non trouvé avec l'ID: " + id);
         }

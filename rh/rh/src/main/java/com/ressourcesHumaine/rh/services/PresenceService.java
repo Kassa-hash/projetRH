@@ -4,6 +4,8 @@ import com.ressourcesHumaine.rh.entities.Employe;
 import com.ressourcesHumaine.rh.entities.Presence;
 import com.ressourcesHumaine.rh.repositories.EmployeRepository;
 import com.ressourcesHumaine.rh.repositories.PresenceRepository;
+import com.ressourcesHumaine.rh.services.HistoriqueService;
+import com.ressourcesHumaine.rh.entities.Historique;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,9 @@ public class PresenceService {
     @Autowired
     private EmployeRepository employeRepository;
 
+    @Autowired
+    private HistoriqueService historiqueService;
+
     public Presence savePresence(Presence presence) {
         if (presence.getEmploye() != null && presence.getEmploye().getIdEmploye() != null) {
             Employe emp = employeRepository.findById(presence.getEmploye().getIdEmploye())
@@ -27,7 +32,19 @@ public class PresenceService {
                             () -> new RuntimeException("Employé non trouvé: " + presence.getEmploye().getIdEmploye()));
             presence.setEmploye(emp);
         }
-        return presenceRepository.save(presence);
+        Presence saved = presenceRepository.save(presence);
+        try {
+            Historique h = new Historique();
+            h.setDescription("Presence créée");
+            String details = "Presence id=" + (saved.getIdPresence() != null ? saved.getIdPresence() : "?")
+                    + ", employe=" + (saved.getEmploye() != null ? saved.getEmploye().getNom() : "-");
+            h.setDetails(details);
+            h.setIdEvenement(saved.getIdPresence() != null ? saved.getIdPresence().intValue() : 0);
+            h.setClasse(Presence.class);
+            historiqueService.saveHistorique(h);
+        } catch (Exception ignore) {
+        }
+        return saved;
     }
 
     public List<Presence> getAllPresences() {
@@ -57,7 +74,19 @@ public class PresenceService {
             p.setDatePresence(details.getDatePresence());
             p.setStatut(details.getStatut());
             p.setEmploye(details.getEmploye());
-            return presenceRepository.save(p);
+            Presence saved = presenceRepository.save(p);
+            try {
+                Historique h = new Historique();
+                h.setDescription("Presence modifiée");
+                String det = "Presence id=" + (saved.getIdPresence() != null ? saved.getIdPresence() : "?")
+                        + ", employe=" + (saved.getEmploye() != null ? saved.getEmploye().getNom() : "-");
+                h.setDetails(det);
+                h.setIdEvenement(saved.getIdPresence() != null ? saved.getIdPresence().intValue() : 0);
+                h.setClasse(Presence.class);
+                historiqueService.saveHistorique(h);
+            } catch (Exception ignore) {
+            }
+            return saved;
         } else {
             throw new RuntimeException("Présence non trouvée avec l'ID: " + id);
         }
@@ -65,7 +94,21 @@ public class PresenceService {
 
     public void deletePresence(Long id) {
         if (presenceRepository.existsById(id)) {
+            Optional<Presence> opt = presenceRepository.findById(id);
             presenceRepository.deleteById(id);
+            try {
+                Historique h = new Historique();
+                h.setDescription("Presence supprimée");
+                String details = "Presence id=" + id;
+                if (opt.isPresent() && opt.get().getEmploye() != null) {
+                    details += ", employe=" + opt.get().getEmploye().getNom();
+                }
+                h.setDetails(details);
+                h.setIdEvenement(id != null ? id.intValue() : 0);
+                h.setClasse(Presence.class);
+                historiqueService.saveHistorique(h);
+            } catch (Exception ignore) {
+            }
         } else {
             throw new RuntimeException("Présence non trouvée avec l'ID: " + id);
         }
