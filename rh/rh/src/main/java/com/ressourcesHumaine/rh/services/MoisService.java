@@ -2,31 +2,67 @@ package com.ressourcesHumaine.rh.services;
 
 import com.ressourcesHumaine.rh.entities.Mois;
 import com.ressourcesHumaine.rh.repositories.MoisRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.*;
-import java.util.TreeMap;
 
 @Service
 public class MoisService {
 
+    private static final Logger logger = LoggerFactory.getLogger(MoisService.class);
+
     @Autowired
     private MoisRepository moisRepository;
 
-    public List<Mois> MoisAll(){
-        return moisRepository.findAll();
+    /**
+     * Récupérer ou créer un mois par son libellé
+     * Format attendu: "Janvier 2024", "Février 2024", etc.
+     */
+    @Transactional
+    public Mois getOrCreateMoisByLibelle(String libelle) {
+        logger.info("Recherche du mois avec libellé: {}", libelle);
+
+        Optional<Mois> moisOpt = moisRepository.findByLibelle(libelle);
+
+        if (moisOpt.isPresent()) {
+            logger.info("Mois trouvé: ID={}", moisOpt.get().getIdMois());
+            return moisOpt.get();
+        } else {
+            // Créer un nouveau mois si inexistant
+            Mois nouveauMois = new Mois();
+            nouveauMois.setLibelle(libelle);
+            Mois savedMois = moisRepository.save(nouveauMois);
+            logger.info("Nouveau mois créé: ID={}, Libellé={}", savedMois.getIdMois(), libelle);
+            return savedMois;
+        }
     }
 
-    public Mois findById(Long id) {
-        Optional<Mois> optional = moisRepository.findById(id);
-        return optional.orElse(null);
+    /**
+     * Construire le libellé du mois à partir du numéro et de l'année
+     */
+    public String construireLibelleMois(int numeroMois, int annee) {
+        String[] nomsMois = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
+
+        if (numeroMois >= 1 && numeroMois <= 12) {
+            return nomsMois[numeroMois - 1] + " " + annee;
+        }
+
+        return "Mois inconnu " + annee;
     }
 
+    public Optional<Mois> findById(Long moisId)
+    {
+        return moisRepository.findById(moisId);
+    }
+
+    public List<Mois> MoisAll()
+    {
+        return  moisRepository.findAll();
+    }
 }

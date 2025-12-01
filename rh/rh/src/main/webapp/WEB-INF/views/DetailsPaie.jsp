@@ -292,6 +292,19 @@
             transform: translateY(-2px);
         }
 
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            font-size: 1.1em;
+            padding: 14px 28px;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #218838 0%, #1ba87e 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
         .btn-secondary {
             background: #6c757d;
             color: white;
@@ -302,10 +315,31 @@
             transform: translateY(-2px);
         }
 
+        /* Alert messages */
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
         @media print {
             .header-bar,
             .action-buttons,
-            .btn-back {
+            .btn-back,
+            .alert {
                 display: none;
             }
 
@@ -390,20 +424,17 @@
         if (ostie5 != null) totalCotisationsEmployeur = totalCotisationsEmployeur.add(ostie5);
         String totalCotisationsEmployeurFormatted = df.format(totalCotisationsEmployeur) + " Ar";
 
-        // Obtenir le matricule
+        // Obtenir le matricule et l'ID employé
         String matricule = "EMP0000";
+        Long employeId = null;
         if (employeObj != null) {
             try {
-                Long employeId = null;
-
-                // Essayer d'obtenir l'ID de différentes manières
                 if (employeObj instanceof com.ressourcesHumaine.rh.entities.Employe) {
                     com.ressourcesHumaine.rh.entities.Employe emp = (com.ressourcesHumaine.rh.entities.Employe) employeObj;
                     employeId = emp.getIdEmploye();
-                }
-
-                if (employeId != null) {
-                    matricule = String.format("EMP%04d", employeId);
+                    if (employeId != null) {
+                        matricule = String.format("EMP%04d", employeId);
+                    }
                 }
             } catch (Exception e) {
                 // Ignorer les erreurs
@@ -620,6 +651,25 @@
 
             <!-- Boutons d'action -->
             <div class="action-buttons">
+                <!-- FORMULAIRE DE VALIDATION -->
+                <form method="post" action="<%= request.getContextPath() %>/paies/valider"
+                      style="display: inline;" onsubmit="return confirmValidation()">
+                    <input type="hidden" name="employeId" value="<%= employeId != null ? employeId : "" %>">
+                    <input type="hidden" name="mois" value="<%= mois != null ? mois : "" %>">
+                    <input type="hidden" name="annee" value="<%= annee != null ? annee : "" %>">
+                    <input type="hidden" name="salaireBase" value="<%= salaireBase != null ? salaireBase : "" %>">
+                    <input type="hidden" name="salaireBrut" value="<%= salaireBrut != null ? salaireBrut : "" %>">
+                    <input type="hidden" name="cnaps1" value="<%= cnaps1 != null ? cnaps1 : "" %>">
+                    <input type="hidden" name="ostie1" value="<%= ostie1 != null ? ostie1 : "" %>">
+                    <input type="hidden" name="revenuImposable" value="<%= revenuImposable != null ? revenuImposable : "" %>">
+                    <input type="hidden" name="irsa" value="<%= irsa != null ? irsa : "" %>">
+                    <input type="hidden" name="netAPayer" value="<%= netAPayer != null ? netAPayer : "" %>">
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check-circle"></i> Valider la paie
+                    </button>
+                </form>
+
                 <button class="btn btn-primary" onclick="window.print()">
                     <i class="fas fa-print"></i> Imprimer
                 </button>
@@ -635,18 +685,19 @@
     </div>
 
     <script>
+        function confirmValidation() {
+            return confirm('Êtes-vous sûr de vouloir valider cette paie ?\n\nCette action enregistrera la paie dans la base de données.');
+        }
+
         function genererPDF() {
-            // Masquer les boutons d'action avant la génération du PDF
             const actionButtons = document.querySelector('.action-buttons');
             const headerBar = document.querySelector('.header-bar');
 
             if (actionButtons) actionButtons.style.display = 'none';
             if (headerBar) headerBar.style.display = 'none';
 
-            // Déclencher l'impression (qui peut être utilisée pour "Enregistrer au format PDF")
             window.print();
 
-            // Restaurer les boutons après un court délai
             setTimeout(function() {
                 if (actionButtons) actionButtons.style.display = 'flex';
                 if (headerBar) headerBar.style.display = 'flex';
