@@ -30,6 +30,7 @@ public class CongeSolde {
         this.employe = emp;
     }
 
+
     @Column(name="annee")
     int annee;
 
@@ -49,6 +50,15 @@ public class CongeSolde {
     }
 
     public void setNbJour(int nbJour) {
+        this.nbJour = nbJour;
+    }
+
+    public CongeSolde() {
+    }
+    
+    public CongeSolde(Employe employe, int annee, int nbJour) {
+        this.employe = employe;
+        this.annee = annee;
         this.nbJour = nbJour;
     }
 }
