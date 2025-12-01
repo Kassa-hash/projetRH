@@ -897,26 +897,7 @@
     </div>
 
     <script>
-        // =============================================
-        // FONCTIONS GLOBALES (accessibles depuis onclick)
-        // =============================================
-
-        // FONCTION PRINCIPALE : Changer la période et recharger la page
-        function changerPeriode() {
-            try {
-                const mois = document.getElementById('selectMonth').value;
-                const annee = document.getElementById('selectYear').value;
-
-                // Utiliser le contexte de l'application
-                const contextPath = '<%= request.getContextPath() %>';
-                window.location.href = contextPath + '/paies?month=' + mois + '&year=' + annee;
-            } catch (error) {
-                console.error('Erreur dans changerPeriode:', error);
-                alert('Erreur lors du changement de période. Voir la console pour plus de détails.');
-            }
-        }
-
-        // Fonction pour fermer le modal
+       
         function fermerModal() {
             document.getElementById('detailsModal').classList.remove('active');
         }
@@ -945,8 +926,11 @@
             return day + '/' + month + '/' + year;
         }
 
+<<<<<<< HEAD
        
 
+=======
+>>>>>>> 66a116a31290aa87725f19c0579e51ddd51c43fb
         // Fonction pour formater les montants
         function formaterMontant(montant) {
             return new Intl.NumberFormat('fr-FR').format(Math.round(montant)) + ' Ar';
