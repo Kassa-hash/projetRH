@@ -1,5 +1,6 @@
 package com.ressourcesHumaine.rh.services;
 
+import com.ressourcesHumaine.rh.entities.CongeSolde;
 import com.ressourcesHumaine.rh.entities.ContratEmploye;
 import com.ressourcesHumaine.rh.repositories.ContratEmployeRepository;
 import com.ressourcesHumaine.rh.services.HistoriqueService;
@@ -9,13 +10,9 @@ import com.ressourcesHumaine.rh.services.CongeSoldeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
 import java.util.*;
-import java.util.TreeMap;
 
 @Service
 public class ContratEmployeService {
@@ -25,6 +22,9 @@ public class ContratEmployeService {
 
     @Autowired
     private HistoriqueService historiqueService;
+
+    @Autowired
+    private CongeSoldeService congeSoldeService;
 
     // CRUD basique
     public List<ContratEmploye> getAllContrats() {
@@ -37,21 +37,42 @@ public class ContratEmployeService {
 
     public ContratEmploye saveContrat(ContratEmploye contrat) {
         ContratEmploye saved = contratemployeRepository.save(contrat);
-        try {
 
-            if(contrat.getTypeContrat() != null && contrat.getTypeContrat().getLibelle().equals("CDI")){
-                
+        try {
+            if (contrat.getTypeContrat() != null
+                    && "CDI".equals(contrat.getTypeContrat().getLibelle())) {
+
+                LocalDate localDate = contrat.getDate().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+
+                int anneeDebut = localDate.getYear();
+
+                // Générer 5 années de solde congé
+                for (int i = 1; i <= 5; i++) {
+                    congeSoldeService.save(
+                            new CongeSolde(
+                                    contrat.getEmploye(),
+                                    anneeDebut + i,
+                                    30));
+                }
             }
+
             Historique h = new Historique();
             h.setDescription("ContratEmploye créé");
+
             String details = "Contrat id=" + (saved.getIdContratEmploye() != null ? saved.getIdContratEmploye() : "?")
                     + ", employe=" + (saved.getEmploye() != null ? saved.getEmploye().getNom() : "-");
+
             h.setDetails(details);
             h.setIdEvenement(saved.getIdContratEmploye() != null ? saved.getIdContratEmploye().intValue() : 0);
             h.setClasse(ContratEmploye.class);
+
             historiqueService.saveHistorique(h);
+
         } catch (Exception ignore) {
         }
+
         return saved;
     }
 
@@ -125,13 +146,13 @@ public class ContratEmployeService {
 
         LocalDate debutPeriode = switch (periode) {
             case "6mois" ->
-                    aujourdHui.minusMonths(6).withDayOfMonth(1);
+                aujourdHui.minusMonths(6).withDayOfMonth(1);
             case "12mois" ->
-                    aujourdHui.minusMonths(12).withDayOfMonth(1);
+                aujourdHui.minusMonths(12).withDayOfMonth(1);
             case "annee" ->
-                    LocalDate.of(aujourdHui.getYear(), 1, 1);
+                LocalDate.of(aujourdHui.getYear(), 1, 1);
             default ->
-                    aujourdHui.minusMonths(6).withDayOfMonth(1);
+                aujourdHui.minusMonths(6).withDayOfMonth(1);
         };
 
         // 1. Créer tous les mois de la période

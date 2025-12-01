@@ -14,16 +14,16 @@ public class CongeSoldeService {
     @Autowired
     private CongeSoldeRepository congeSoldeRepository;
 
-    public CongeSolde getCongeEmpByAnnee(int annee,Long idEmp){
-        return congeSoldeRepository.getCongeEmpByAnnee(annee,idEmp);
+    public CongeSolde getCongeEmpByAnnee(int annee, Long idEmp) {
+        return congeSoldeRepository.getCongeEmpByAnnee(annee, idEmp);
     }
 
-    public CongeSolde save(CongeSolde solde){
+    public CongeSolde save(CongeSolde solde) {
         return congeSoldeRepository.save(solde);
     }
 
-    public int getSoldeByEmp(Long idEmp)
-    {
+
+    public int getSoldeByEmp(Long idEmp) {
         return congeSoldeRepository.soldeByEmploye(idEmp);
     }
 }

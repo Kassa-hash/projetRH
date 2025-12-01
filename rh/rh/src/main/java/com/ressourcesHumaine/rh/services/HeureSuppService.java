@@ -22,6 +22,10 @@ public class HeureSuppService {
         return heureSuppRepository.findAll();
     }
 
+    public void saveHeureSupp(HeureSupp heureSupp) {
+        heureSuppRepository.save(heureSupp);
+    }
+
     public List<HeureSupp> getHeuresSuppByEmployeAndMonth(Long employeId, int month, int year) {
         logger.info("Recherche heures supp pour employeId={}, month={}, year={}", employeId, month, year);
         List<HeureSupp> heures = heureSuppRepository.findHeuresSuppByEmployeAndMonth(employeId, month, year);
