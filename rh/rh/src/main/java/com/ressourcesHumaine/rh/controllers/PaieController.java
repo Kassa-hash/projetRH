@@ -1,8 +1,12 @@
 package com.ressourcesHumaine.rh.controllers;
 
 import com.ressourcesHumaine.rh.entities.Employe;
+import com.ressourcesHumaine.rh.entities.Mois;
+import com.ressourcesHumaine.rh.entities.Paie;
 import com.ressourcesHumaine.rh.services.EmployeService;
 import com.ressourcesHumaine.rh.services.HeureSuppService;
+import com.ressourcesHumaine.rh.services.MoisService;
+import com.ressourcesHumaine.rh.services.PaieService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -14,8 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +38,12 @@ public class PaieController {
 
     @Autowired
     private HeureSuppService heureSuppService;
+
+    @Autowired
+    private PaieService paieService;
+
+    @Autowired
+    private MoisService moisService;
 
     @GetMapping
     public String showPaie(
@@ -164,7 +176,7 @@ public class PaieController {
                     employeId, mois, annee);
             int heuresSupp = heuresSuppDecimal != null ? heuresSuppDecimal.intValue() : 0;
 
-            // CALCULS DE PAIE (identique à ceux dans votre JSP)
+            // CALCULS DE PAIE
             BigDecimal heuresParMois = new BigDecimal("173.33");
             BigDecimal tauxMajoration = new BigDecimal("1.5");
             BigDecimal tauxHoraireNormal = salaireBase.divide(heuresParMois, 2, RoundingMode.HALF_UP);
@@ -216,7 +228,7 @@ public class PaieController {
 
             irsa = irsa.setScale(0, RoundingMode.HALF_UP);
 
-            BigDecimal salaireNet = salaireBrut.subtract(cnaps8).subtract(ostie5).subtract(irsa);
+            BigDecimal salaireNet = salaireBrut.subtract(cnaps1).subtract(ostie1).subtract(irsa);
 
             BigDecimal avance = BigDecimal.ZERO;
             if (salaireNet.compareTo(new BigDecimal("200000")) > 0) {
@@ -251,12 +263,76 @@ public class PaieController {
             model.addAttribute("moisNom", getNomMois(mois));
 
             logger.info("=== FIN showPaieDetails ===");
-            return "DetailsPaie"; // Retourne vers une nouvelle JSP
+            return "DetailsPaie";
 
         } catch (Exception e) {
             logger.error("ERREUR dans showPaieDetails: {}", e.getMessage(), e);
             model.addAttribute("errorMessage", "Erreur lors du chargement des détails: " + e.getMessage());
             return "erreur";
+        }
+    }
+
+
+    /**
+     * NOUVELLE METHODE: Valider et enregistrer une paie
+     */
+    @PostMapping("/valider")
+    public String validerPaie(
+            @RequestParam Long employeId,
+            @RequestParam Integer mois,
+            @RequestParam Integer annee,
+            @RequestParam BigDecimal salaireBase,
+            @RequestParam BigDecimal salaireBrut,
+            @RequestParam BigDecimal cnaps1,
+            @RequestParam BigDecimal ostie1,
+            @RequestParam BigDecimal revenuImposable,
+            @RequestParam BigDecimal irsa,
+            @RequestParam BigDecimal netAPayer,
+            RedirectAttributes redirectAttributes) {
+
+        logger.info("=== DEBUT validerPaie ===");
+        logger.info("Validation paie - Employé: {}, Mois: {}/{}", employeId, mois, annee);
+
+        try {
+            // Récupérer l'employé
+            Employe employe = employeService.findByIdWithContrat(employeId);
+            if (employe == null) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Employé non trouvé (ID: " + employeId + ")");
+                return "redirect:/paies?month=" + mois + "&year=" + annee;
+            }
+
+            // Créer ou récupérer le mois
+            String libelleMois = moisService.construireLibelleMois(mois, annee);
+            Mois moisEntity = moisService.getOrCreateMoisByLibelle(libelleMois);
+
+            logger.info("Mois entity: ID={}, Libellé={}", moisEntity.getIdMois(), moisEntity.getLibelle());
+
+            // Créer ou mettre à jour la paie
+            Paie paie = paieService.createOrUpdatePaie(
+                    employe,
+                    moisEntity,
+                    salaireBase,
+                    salaireBrut,
+                    cnaps1,        // Stockage cnaps1 (part employé)
+                    ostie1,        // Stockage ostie1 (part employé)
+                    revenuImposable,
+                    irsa,
+                    netAPayer
+            );
+
+            logger.info("Paie validée avec succès - ID: {}", paie.getIdPaie());
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Paie validée avec succès pour " + employe.getNom() + " (" + libelleMois + ")");
+
+            return "redirect:/paies?month=" + mois + "&year=" + annee;
+
+        } catch (Exception e) {
+            logger.error("ERREUR lors de la validation de la paie: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Erreur lors de la validation: " + e.getMessage());
+            return "redirect:/paies?month=" + mois + "&year=" + annee;
         }
     }
 

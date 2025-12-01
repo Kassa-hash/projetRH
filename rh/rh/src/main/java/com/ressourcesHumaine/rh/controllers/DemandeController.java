@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import com.ressourcesHumaine.rh.entities.*;
 import com.ressourcesHumaine.rh.services.*;
@@ -229,7 +230,8 @@ public class DemandeController {
                 throw new DemandeAvanceException("Montant invalide");
             }
 
-            Mois mois = moisService.findById(moisId);
+            Optional <Mois> moisopt= moisService.findById(moisId);
+            Mois mois =moisopt.get();
             System.out.println("Mois trouvé: " + (mois != null ? mois.getLibelle() : "null"));
 
             if (mois == null) {

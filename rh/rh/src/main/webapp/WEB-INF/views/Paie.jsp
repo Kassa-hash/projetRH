@@ -889,6 +889,40 @@
     </div>
 
     <script>
+        // =============================================
+        // FONCTIONS GLOBALES (accessibles depuis onclick)
+        // =============================================
+
+        // FONCTION PRINCIPALE : Changer la période et recharger la page
+        function changerPeriode() {
+            try {
+                const mois = document.getElementById('selectMonth').value;
+                const annee = document.getElementById('selectYear').value;
+
+                // Utiliser le contexte de l'application
+                const contextPath = '<%= request.getContextPath() %>';
+                window.location.href = contextPath + '/paies?month=' + mois + '&year=' + annee;
+            } catch (error) {
+                console.error('Erreur dans changerPeriode:', error);
+                alert('Erreur lors du changement de période. Voir la console pour plus de détails.');
+            }
+        }
+
+        // Fonction pour fermer le modal
+        function fermerModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+        }
+
+        // Fonction pour générer PDF (simulation)
+        function genererPDF(employeId) {
+            alert(`Génération du PDF pour l'employé ${employeId}\n\nCette fonctionnalité sera implémentée avec une bibliothèque PDF comme jsPDF.`);
+        }
+
+        // Fonction pour imprimer la fiche de paie
+        function imprimerFichePaie() {
+            window.print();
+        }
+
         // Fonctions utilitaires pour formater les nombres
         function padNumber(num, size) {
             let s = num.toString();
@@ -901,13 +935,6 @@
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const year = date.getFullYear();
             return day + '/' + month + '/' + year;
-        }
-
-        // FONCTION PRINCIPALE : Changer la période et recharger la page
-        function changerPeriode() {
-            const mois = document.getElementById('selectMonth').value;
-            const annee = document.getElementById('selectYear').value;
-            window.location.href = '/paies?month=' + mois + '&year=' + annee;
         }
 
         // Fonction pour formater les montants
@@ -1150,23 +1177,13 @@
             document.getElementById('detailsModal').classList.add('active');
         }
 
-        // Fonction pour générer PDF (simulation)
-        function genererPDF(employeId) {
-            alert(`Génération du PDF pour l'employé ${employeId}\n\nCette fonctionnalité sera implémentée avec une bibliothèque PDF comme jsPDF.`);
-        }
-
-        // Fonction pour imprimer la fiche de paie
-        function imprimerFichePaie() {
-            window.print();
-        }
-
-        // Fonction pour fermer le modal
-        function fermerModal() {
-            document.getElementById('detailsModal').classList.remove('active');
-        }
-
-        // Gestion des événements
+        // =============================================
+        // INITIALISATION AU CHARGEMENT DE LA PAGE
+        // =============================================
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page chargée - Mois: <%= moisActuel %>, Année: <%= anneeActuelle %>');
+            console.log('Nombre d\'employés: <%= employes != null ? employes.size() : 0 %>');
+
             // Gestion des onglets principaux
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', () => {
@@ -1222,8 +1239,8 @@
             if (selectMonth) selectMonth.addEventListener('keypress', validerAvecEnter);
             if (selectYear) selectYear.addEventListener('keypress', validerAvecEnter);
 
-            console.log('Page chargée - Mois: <%= moisActuel %>, Année: <%= anneeActuelle %>');
-            console.log('Nombre d\'employés: <%= employes != null ? employes.size() : 0 %>');
+            // Test: Vérifier que changerPeriode est accessible
+            console.log('changerPeriode accessible?', typeof changerPeriode === 'function');
         });
     </script>
 </body>
