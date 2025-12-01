@@ -309,7 +309,7 @@
             background: white;
             border-radius: 12px;
             width: 90%;
-            max-width: 800px;
+            max-width: 1000px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -341,67 +341,247 @@
             padding: 30px;
         }
 
-        .detail-section {
-            margin-bottom: 25px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
+        /* Styles pour la fiche de paie */
+        .payroll-sheet {
+            font-family: Arial, sans-serif;
+            color: #333;
         }
 
-        .detail-section h3 {
+        .company-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #4a7c2c;
+        }
+
+        .company-logo {
+            text-align: center;
+        }
+
+        .logo-placeholder {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0 auto 10px;
+        }
+
+        .company-info h2 {
+            color: #2d5016;
+            margin-bottom: 5px;
+            font-size: 1.8em;
+        }
+
+        .company-info p {
+            margin: 3px 0;
+            color: #666;
+        }
+
+        .document-title {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .document-title h1 {
+            color: #2d5016;
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .document-title .period {
+            font-size: 1.2em;
             color: #4a7c2c;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #4a7c2c;
+            font-weight: bold;
         }
 
-        .detail-grid {
+        .employee-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 5px solid #4a7c2c;
+        }
+
+        .employee-info h3 {
+            color: #2d5016;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
         }
 
-        .detail-item {
+        .info-item {
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px dashed #ddd;
         }
 
-        .detail-item:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
+        .info-label {
             font-weight: 600;
             color: #666;
         }
 
-        .detail-value {
-            font-weight: 600;
+        .info-value {
+            font-weight: bold;
             color: #333;
         }
 
-        .total-section {
+        .payroll-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .payroll-table th {
+            background: #4a7c2c;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .payroll-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .payroll-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .amount {
+            text-align: right;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .section-title {
+            color: #2d5016;
+            margin: 25px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4a7c2c;
+            font-size: 1.4em;
+        }
+
+        .totals-section {
             background: #e8f5e8;
             padding: 20px;
             border-radius: 8px;
             margin-top: 20px;
         }
 
-        .total-item {
+        .total-row {
             display: flex;
             justify-content: space-between;
-            font-size: 1.2em;
-            font-weight: bold;
-            padding: 10px 0;
+            padding: 12px 0;
+            font-size: 1.1em;
+            border-bottom: 1px solid #d4edda;
         }
 
-        .net-payer {
+        .total-row:last-child {
+            border-bottom: none;
+        }
+
+        .net-payable {
+            font-size: 1.3em;
+            font-weight: bold;
             color: #2d5016;
-            font-size: 1.4em;
-            border-top: 2px solid #4a7c2c;
+            margin-top: 10px;
             padding-top: 15px;
+            border-top: 2px solid #4a7c2c;
+        }
+
+        .legal-mentions {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+        }
+
+        .payroll-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #4a7c2c;
+        }
+
+        .signature {
+            text-align: center;
+            width: 45%;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
+            width: 80%;
+            margin: 40px auto 10px;
+        }
+
+        .payroll-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .print-btn {
+            background: linear-gradient(135deg, #4a7c2c 0%, #5a9c3c 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .print-btn:hover {
+            background: linear-gradient(135deg, #3a6c1c 0%, #4a8c2c 100%);
+        }
+
+        @media print {
+            .modal-content {
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .modal-header,
+            .close-btn,
+            .print-btn {
+                display: none;
+            }
+
+            .modal {
+                position: static;
+                background: white;
+            }
+
+            .modal.active {
+                display: block;
+            }
         }
     </style>
 </head>
@@ -541,7 +721,6 @@
                                 java.util.Map heuresSuppTotals = (java.util.Map) request.getAttribute("heuresSuppTotals");
 
                                 if (employes != null && !employes.isEmpty()) {
-                                    int index = 0;
                                     for (Employe employe : employes) {
                                         if (employe.getIdEmploye() == null || employe.getIdEmploye() <= 0) {
                                             continue;
@@ -648,7 +827,6 @@
                                         }
 
                                         BigDecimal netAPayer = salaireNet.subtract(avance);
-                                        index++;
                             %>
                             <tr>
                                 <td><%= nomEmploye %></td>
@@ -669,9 +847,10 @@
                                 <td class="text-right"><%= String.format("%,.0f Ar", avance) %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", netAPayer) %></td>
                                 <td class="text-center">
-                                    <button class="btn-action btn-view" onclick="afficherDetails(<%= employe.getIdEmploye() %>)">
+                                    <a href="<%= request.getContextPath() %>/paies/details?employeId=<%= employe.getIdEmploye() %>&month=<%= moisActuel %>&year=<%= anneeActuelle %>"
+                                       class="btn-action btn-view">
                                         <i class="fas fa-eye"></i> Détails
-                                    </button>
+                                    </a>
                                     <button class="btn-action btn-pdf" onclick="genererPDF(<%= employe.getIdEmploye() %>)">
                                         <i class="fas fa-file-pdf"></i> PDF
                                     </button>
@@ -698,7 +877,7 @@
     <div class="modal" id="detailsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-file-invoice-dollar"></i> Détails du Bulletin de Paie</h2>
+                <h2><i class="fas fa-file-invoice-dollar"></i> Fiche de Paie Détaillée</h2>
                 <button class="close-btn" onclick="fermerModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -710,42 +889,260 @@
     </div>
 
     <script>
+        // Fonctions utilitaires pour formater les nombres
+        function padNumber(num, size) {
+            let s = num.toString();
+            while (s.length < size) s = "0" + s;
+            return s;
+        }
+
+        function formatDate(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return day + '/' + month + '/' + year;
+        }
+
         // FONCTION PRINCIPALE : Changer la période et recharger la page
         function changerPeriode() {
             const mois = document.getElementById('selectMonth').value;
             const annee = document.getElementById('selectYear').value;
-
-            // Rediriger vers la même page avec les paramètres mois et année
             window.location.href = '/paies?month=' + mois + '&year=' + annee;
         }
 
         // Fonction pour formater les montants
         function formaterMontant(montant) {
-            return new Intl.NumberFormat('fr-FR').format(montant) + ' Ar';
+            return new Intl.NumberFormat('fr-FR').format(Math.round(montant)) + ' Ar';
         }
 
         // Fonction pour afficher les détails
-        function afficherDetails(employeId) {
-            const detailsContent = document.getElementById('detailsContent');
+        function afficherDetails(employeId, nomEmploye, dateEmbauche, poste, departement,
+                                salaireBase, heuresSupp, salaireBrut, majorationHeuresSupp,
+                                cnaps1, cnaps8, ostie1, ostie5, revenuImposable, irsa,
+                                salaireNet, avance, netAPayer, tauxHoraireNormal, tauxHoraireSupp) {
 
+            const moisActuel = <%= moisActuel %>;
+            const anneeActuelle = <%= anneeActuelle %>;
+            const nomsMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                             "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+            const moisNom = nomsMois[moisActuel - 1];
+
+            // Formater les dates correctement
+            const moisFormatted = moisActuel < 10 ? '0' + moisActuel : moisActuel.toString();
+            const derniersJourDuMois = new Date(anneeActuelle, moisActuel, 0).getDate();
+
+            const datePaiement = new Date(anneeActuelle, moisActuel - 1, 28);
+            const datePaiementFormatted = formatDate(datePaiement);
+            const periodeDu = '01/' + moisFormatted + '/' + anneeActuelle;
+            const periodeAu = derniersJourDuMois + '/' + moisFormatted + '/' + anneeActuelle;
+
+            // Matricule formaté
+            const matricule = 'EMP' + padNumber(employeId, 4);
+
+            const detailsContent = document.getElementById('detailsContent');
             detailsContent.innerHTML = `
-                <div class="detail-section">
-                    <h3>Informations Employé</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <span class="detail-label">ID Employé:</span>
-                            <span class="detail-value">${employeId}</span>
+                <div class="payroll-sheet">
+                    <!-- En-tête avec logo de l'entreprise -->
+                    <div class="company-header">
+                        <div class="company-logo">
+                            <div class="logo-placeholder">
+                                <i class="fas fa-building fa-3x"></i>
+                            </div>
+                            <h3>GreenTech Solutions</h3>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Nom:</span>
-                            <span class="detail-value">Chargement...</span>
+                        <div class="company-info">
+                            <h2>GREEN TECH SOLUTIONS SARL</h2>
+                            <p>Lotissement d'Affaires Ivandry, Antananarivo 101</p>
+                            <p>Tél: +261 20 22 333 44 | Email: contact@greentech.mg</p>
+                            <p>NIF: 3000123456 | STAT: 63112 11 2018 0 08972</p>
+                            <p>RCS: Antananarivo 2018 B 0152</p>
                         </div>
                     </div>
-                </div>
-                <div class="text-center">
-                    <p>Les détails complets seront chargés via une requête AJAX</p>
-                    <button class="btn btn-primary" onclick="chargerDetailsComplets(${employeId})">
-                        Charger les détails complets
+
+                    <!-- Titre du document -->
+                    <div class="document-title">
+                        <h1>BULLETIN DE PAIE</h1>
+                        <div class="period">Période : ${moisNom} ${anneeActuelle}</div>
+                    </div>
+
+                    <!-- Informations de l'employé -->
+                    <div class="employee-info">
+                        <h3>INFORMATIONS EMPLOYÉ</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Nom :</span>
+                                <span class="info-value">${nomEmploye}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Matricule :</span>
+                                <span class="info-value">${matricule}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Fonction :</span>
+                                <span class="info-value">${poste}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Département :</span>
+                                <span class="info-value">${departement}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Date d'embauche :</span>
+                                <span class="info-value">${dateEmbauche}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Période :</span>
+                                <span class="info-value">Du ${periodeDu} au ${periodeAu}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gains et avantages -->
+                    <h3 class="section-title">GAINS ET AVANTAGES</h3>
+                    <table class="payroll-table">
+                        <thead>
+                            <tr>
+                                <th>Désignation</th>
+                                <th>Unité</th>
+                                <th>Quantité</th>
+                                <th>Taux</th>
+                                <th>Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Salaire de base</td>
+                                <td>Mois</td>
+                                <td>1</td>
+                                <td class="amount">${formaterMontant(salaireBase)}</td>
+                                <td class="amount">${formaterMontant(salaireBase)}</td>
+                            </tr>
+                            <tr>
+                                <td>Heures supplémentaires (majoration 50%)</td>
+                                <td>Heures</td>
+                                <td>${heuresSupp}</td>
+                                <td class="amount">${formaterMontant(tauxHoraireSupp)}</td>
+                                <td class="amount">${formaterMontant(majorationHeuresSupp)}</td>
+                            </tr>
+                            <tr style="background-color: #f0f8f0;">
+                                <td colspan="4" style="text-align: right; font-weight: bold;">TOTAL DES GAINS</td>
+                                <td class="amount" style="font-size: 1.1em;">${formaterMontant(salaireBrut)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Cotisations sociales -->
+                    <h3 class="section-title">COTISATIONS SOCIALES</h3>
+                    <table class="payroll-table">
+                        <thead>
+                            <tr>
+                                <th>Désignation</th>
+                                <th>Base</th>
+                                <th>Taux</th>
+                                <th>Employé</th>
+                                <th>Employeur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CNAPS</td>
+                                <td class="amount">${formaterMontant(salaireBrut)}</td>
+                                <td>1% / 8%</td>
+                                <td class="amount">${formaterMontant(cnaps1)}</td>
+                                <td class="amount">${formaterMontant(cnaps8)}</td>
+                            </tr>
+                            <tr>
+                                <td>OSTIE</td>
+                                <td class="amount">${formaterMontant(salaireBrut)}</td>
+                                <td>1% / 5%</td>
+                                <td class="amount">${formaterMontant(ostie1)}</td>
+                                <td class="amount">${formaterMontant(ostie5)}</td>
+                            </tr>
+                            <tr style="background-color: #f0f8f0;">
+                                <td colspan="3" style="text-align: right; font-weight: bold;">TOTAL DES COTISATIONS</td>
+                                <td class="amount">${formaterMontant(cnaps1 + ostie1)}</td>
+                                <td class="amount">${formaterMontant(cnaps8 + ostie5)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Impôt sur le revenu -->
+                    <h3 class="section-title">IMPÔT SUR LE REVENU (IRSA)</h3>
+                    <table class="payroll-table">
+                        <thead>
+                            <tr>
+                                <th>Revenu imposable</th>
+                                <th>Taux</th>
+                                <th>Montant IRSA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="amount">${formaterMontant(revenuImposable)}</td>
+                                <td>Barème progressif</td>
+                                <td class="amount">${formaterMontant(irsa)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Récapitulatif -->
+                    <div class="totals-section">
+                        <h3 class="section-title">RÉCAPITULATIF</h3>
+                        <div class="total-row">
+                            <span>Salaire brut :</span>
+                            <span class="amount">${formaterMontant(salaireBrut)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Cotisations sociales employé :</span>
+                            <span class="amount">- ${formaterMontant(cnaps1 + ostie1)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Impôt sur le revenu (IRSA) :</span>
+                            <span class="amount">- ${formaterMontant(irsa)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Salaire net avant avance :</span>
+                            <span class="amount">${formaterMontant(salaireNet)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Avance sur salaire :</span>
+                            <span class="amount">- ${formaterMontant(avance)}</span>
+                        </div>
+                        <div class="total-row net-payable">
+                            <span>NET À PAYER :</span>
+                            <span class="amount">${formaterMontant(netAPayer)}</span>
+                        </div>
+                    </div>
+
+                    <!-- Détails techniques -->
+                    <div class="payroll-meta">
+                        <p>Taux horaire normal : ${formaterMontant(tauxHoraireNormal)} |
+                           Taux horaire majoré : ${formaterMontant(tauxHoraireSupp)} |
+                           Date de paiement : ${datePaiementFormatted}</p>
+                    </div>
+
+                    <!-- Mentions légales -->
+                    <div class="legal-mentions">
+                        <p><strong>Mentions légales :</strong> Ce bulletin de paie a été établi conformément à la législation du travail de Madagascar.</p>
+                        <p>Le salaire est payable le dernier jour ouvrable du mois. Toute réclamation doit être formulée dans les 8 jours.</p>
+                    </div>
+
+                    <!-- Signature -->
+                    <div class="payroll-footer">
+                        <div class="signature">
+                            <p>Pour l'employeur</p>
+                            <div class="signature-line"></div>
+                            <p>Le Directeur Général</p>
+                        </div>
+                        <div class="signature">
+                            <p>Pour acquit</p>
+                            <div class="signature-line"></div>
+                            <p>L'employé</p>
+                        </div>
+                    </div>
+
+                    <!-- Bouton d'impression -->
+                    <button class="print-btn" onclick="imprimerFichePaie()">
+                        <i class="fas fa-print"></i> Imprimer la fiche de paie
                     </button>
                 </div>
             `;
@@ -753,14 +1150,14 @@
             document.getElementById('detailsModal').classList.add('active');
         }
 
-        // Fonction pour charger les détails complets (à implémenter)
-        function chargerDetailsComplets(employeId) {
-            alert(`Chargement des détails pour l'employé ${employeId}\n\nÀ implémenter avec une requête AJAX vers le serveur.`);
-        }
-
         // Fonction pour générer PDF (simulation)
         function genererPDF(employeId) {
             alert(`Génération du PDF pour l'employé ${employeId}\n\nCette fonctionnalité sera implémentée avec une bibliothèque PDF comme jsPDF.`);
+        }
+
+        // Fonction pour imprimer la fiche de paie
+        function imprimerFichePaie() {
+            window.print();
         }
 
         // Fonction pour fermer le modal
@@ -825,7 +1222,6 @@
             if (selectMonth) selectMonth.addEventListener('keypress', validerAvecEnter);
             if (selectYear) selectYear.addEventListener('keypress', validerAvecEnter);
 
-            // Afficher un message si des heures supplémentaires ne s'affichent pas
             console.log('Page chargée - Mois: <%= moisActuel %>, Année: <%= anneeActuelle %>');
             console.log('Nombre d\'employés: <%= employes != null ? employes.size() : 0 %>');
         });
