@@ -586,6 +586,14 @@
     </style>
 </head>
 <body>
+<script>
+     // FONCTION PRINCIPALE : Changer la période et recharger la page
+        function changerPeriode() {
+            const mois = document.getElementById('selectMonth').value;
+            const annee = document.getElementById('selectYear').value;
+            window.location.href = '/paies?month=' + mois + '&year=' + annee;
+        }
+</script>
     <%
         // Récupération du mois et de l'année actuels utilisés par le contrôleur
         // On vérifie d'abord les paramètres de requête (GET), puis les attributs de requête
@@ -903,12 +911,7 @@
             return day + '/' + month + '/' + year;
         }
 
-        // FONCTION PRINCIPALE : Changer la période et recharger la page
-        function changerPeriode() {
-            const mois = document.getElementById('selectMonth').value;
-            const annee = document.getElementById('selectYear').value;
-            window.location.href = '/paies?month=' + mois + '&year=' + annee;
-        }
+       
 
         // Fonction pour formater les montants
         function formaterMontant(montant) {

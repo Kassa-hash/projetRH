@@ -4,6 +4,7 @@ import com.ressourcesHumaine.rh.entities.ContratEmploye;
 import com.ressourcesHumaine.rh.repositories.ContratEmployeRepository;
 import com.ressourcesHumaine.rh.services.HistoriqueService;
 import com.ressourcesHumaine.rh.entities.Historique;
+import com.ressourcesHumaine.rh.services.CongeSoldeService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,10 @@ public class ContratEmployeService {
     public ContratEmploye saveContrat(ContratEmploye contrat) {
         ContratEmploye saved = contratemployeRepository.save(contrat);
         try {
+
+            if(contrat.getTypeContrat() != null && contrat.getTypeContrat().getLibelle().equals("CDI")){
+                
+            }
             Historique h = new Historique();
             h.setDescription("ContratEmploye créé");
             String details = "Contrat id=" + (saved.getIdContratEmploye() != null ? saved.getIdContratEmploye() : "?")
