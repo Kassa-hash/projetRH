@@ -859,34 +859,18 @@
                                 <td class="text-right"><%= String.format("%,.0f Ar", salaireNet) %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", avance) %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", netAPayer) %></td>
-                                <td class="text-center">
-                                    <button class="btn-action btn-view" onclick="afficherDetailsAvecAvance(
-                                        <%= employe.getIdEmploye() %>,
-                                        '<%= nomEmploye.replace("'", "\\'") %>',
-                                        '<%= dateEmbauche %>',
-                                        '<%= poste.replace("'", "\\'") %>',
-                                        '<%= nomDepartement.replace("'", "\\'") %>',
-                                        <%= salaireBase %>,
-                                        <%= heuresSupp %>,
-                                        <%= salaireBrut %>,
-                                        <%= majorationHeuresSupp %>,
-                                        <%= cnaps1 %>,
-                                        <%= cnaps8 %>,
-                                        <%= ostie1 %>,
-                                        <%= ostie5 %>,
-                                        <%= revenuImposable %>,
-                                        <%= irsa %>,
-                                        <%= salaireNet %>,
-                                        <%= avance %>,
-                                        <%= netAPayer %>,
-                                        <%= tauxHoraireNormal %>,
-                                        <%= tauxHoraireSupp %>)">
-                                        <i class="fas fa-eye"></i> Détails
-                                    </button>
-                                    <button class="btn-action btn-pdf" onclick="genererPDF(<%= employe.getIdEmploye() %>)">
-                                        <i class="fas fa-file-pdf"></i> PDF
-                                    </button>
-                                </td>
+                    <td class="text-center">
+                        <!-- Nouveau bouton Détails qui redirige vers la page /paies/details -->
+                        <button class="btn-action btn-view"
+                                onclick="window.location.href='/paies/details?employeId=<%= employe.getIdEmploye() %>&month=<%= moisActuel %>&year=<%= anneeActuelle %>'">
+                            <i class="fas fa-eye"></i> Détails
+                        </button>
+
+                        <!-- Garder le bouton PDF -->
+                        <button class="btn-action btn-pdf" onclick="genererPDF(<%= employe.getIdEmploye() %>)">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </td>
                             </tr>
                             <%
                                     }

@@ -74,68 +74,37 @@ public class PaieController {
             model.addAttribute("moisActuel", mois);
             model.addAttribute("anneeActuelle", annee);
 
-            // Récupérer le mois entity pour les avances
-            String libelleMois = moisService.construireLibelleMois(mois, annee);
-            Mois moisEntity = moisService.getMoisByLibelle(libelleMois);
-
             // Calculer les heures supplémentaires pour chaque employé
             Map<Long, BigDecimal> heuresSuppTotals = new HashMap<>();
-            // NOUVEAU: Récupérer les avances pour chaque employé
-            Map<Long, BigDecimal> avancesMap = new HashMap<>();
 
             if (employes != null && !employes.isEmpty()) {
-                logger.info("=== Calcul des heures supp et avances pour {} employés ===", employes.size());
+                logger.info("=== Calcul des heures supp pour {} employés ===", employes.size());
 
                 for (Employe e : employes) {
                     if (e != null && e.getIdEmploye() != null) {
                         logger.info("Traitement employé ID: {} - Nom: {}",
                                 e.getIdEmploye(), e.getNom());
 
-                        // Heures supplémentaires
                         try {
-                            BigDecimal totalHeures = heureSuppService.getTotalHeuresSuppByEmployeAndMonth(
+                            BigDecimal total = heureSuppService.getTotalHeuresSuppByEmployeAndMonth(
                                     e.getIdEmploye(), mois, annee);
 
-                            heuresSuppTotals.put(e.getIdEmploye(), totalHeures != null ? totalHeures : BigDecimal.ZERO);
+                            heuresSuppTotals.put(e.getIdEmploye(), total != null ? total : BigDecimal.ZERO);
 
                             logger.info("  -> Total heures supp pour employé {}: {}",
-                                    e.getIdEmploye(), totalHeures);
+                                    e.getIdEmploye(), total);
 
                         } catch (Exception ex) {
-                            logger.error("ERREUR heures supp pour employé {}: {}", e.getIdEmploye(), ex.getMessage());
+                            logger.error("ERREUR pour employé {}: {}", e.getIdEmploye(), ex.getMessage(), ex);
                             heuresSuppTotals.put(e.getIdEmploye(), BigDecimal.ZERO);
-                        }
-
-                        // Avances
-                        try {
-                            BigDecimal totalAvance = BigDecimal.ZERO;
-                            if (moisEntity != null) {
-                                List<DemandeAvance> avances = demandeAvanceService.getAvancesValideesByEmployeAndMois(e, moisEntity);
-                                if (avances != null && !avances.isEmpty()) {
-                                    totalAvance = avances.stream()
-                                            .map(DemandeAvance::getMontant)
-                                            .filter(Objects::nonNull)
-                                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-                                }
-                            }
-                            avancesMap.put(e.getIdEmploye(), totalAvance);
-
-                            logger.info("  -> Total avance pour employé {}: {}",
-                                    e.getIdEmploye(), totalAvance);
-
-                        } catch (Exception ex) {
-                            logger.error("ERREUR avance pour employé {}: {}", e.getIdEmploye(), ex.getMessage());
-                            avancesMap.put(e.getIdEmploye(), BigDecimal.ZERO);
                         }
                     }
                 }
 
                 logger.info("=== MAP finale heuresSuppTotals: {} ===", heuresSuppTotals);
-                logger.info("=== MAP finale avancesMap: {} ===", avancesMap);
             }
 
             model.addAttribute("heuresSuppTotals", heuresSuppTotals);
-            model.addAttribute("avancesMap", avancesMap);
 
             logger.info("=== FIN showPaie - Redirection vers Paie.jsp ===");
             return "Paie";
@@ -144,7 +113,6 @@ public class PaieController {
             logger.error("ERREUR GLOBALE dans showPaie: {}", e.getMessage(), e);
             model.addAttribute("employes", java.util.Collections.emptyList());
             model.addAttribute("heuresSuppTotals", new HashMap<>());
-            model.addAttribute("avancesMap", new HashMap<>());
             model.addAttribute("errorMessage", "Erreur lors du chargement des données: " + e.getMessage());
             return "Paie";
         }
@@ -231,14 +199,13 @@ public class PaieController {
             BigDecimal majorationHeuresSupp = tauxHoraireSupp.multiply(heuresSuppDecimal != null ? heuresSuppDecimal : BigDecimal.ZERO);
             BigDecimal salaireBrut = salaireBase.add(majorationHeuresSupp);
 
-            // Calculs des cotisations (corrigés selon votre JSP)
             BigDecimal cnaps1 = salaireBrut.multiply(new BigDecimal("0.01")).setScale(0, RoundingMode.HALF_UP);
             BigDecimal cnaps8 = salaireBrut.multiply(new BigDecimal("0.08")).setScale(0, RoundingMode.HALF_UP);
             BigDecimal ostie1 = salaireBrut.multiply(new BigDecimal("0.01")).setScale(0, RoundingMode.HALF_UP);
             BigDecimal ostie5 = salaireBrut.multiply(new BigDecimal("0.05")).setScale(0, RoundingMode.HALF_UP);
             BigDecimal revenuImposable = salaireBrut.subtract(cnaps1).subtract(ostie1);
 
-            // Calcul IRSA (corrigé selon votre JSP)
+            // Calcul IRSA
             BigDecimal irsa = BigDecimal.ZERO;
             BigDecimal seuil1 = new BigDecimal("350000");
             BigDecimal seuil2 = new BigDecimal("650000");
@@ -276,8 +243,7 @@ public class PaieController {
 
             irsa = irsa.setScale(0, RoundingMode.HALF_UP);
 
-            // Calcul salaire net (corrigé selon votre JSP - cnaps8 et ostie5)
-            BigDecimal salaireNet = salaireBrut.subtract(cnaps8).subtract(ostie5).subtract(irsa);
+            BigDecimal salaireNet = salaireBrut.subtract(cnaps1).subtract(ostie1).subtract(irsa);
 
             // Utiliser l'avance réelle calculée ci-dessus au lieu de la valeur fixe
             BigDecimal avance = avanceReelle;
