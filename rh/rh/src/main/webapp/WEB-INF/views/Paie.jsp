@@ -596,7 +596,6 @@
 </script>
     <%
         // Récupération du mois et de l'année actuels utilisés par le contrôleur
-        // On vérifie d'abord les paramètres de requête (GET), puis les attributs de requête
         Integer moisActuel = null;
         Integer anneeActuelle = null;
 
@@ -726,7 +725,8 @@
                         <tbody>
                             <%
                                 List<Employe> employes = (List<Employe>) request.getAttribute("employes");
-                                java.util.Map heuresSuppTotals = (java.util.Map) request.getAttribute("heuresSuppTotals");
+                                java.util.Map<Long, BigDecimal> heuresSuppTotals = (java.util.Map<Long, BigDecimal>) request.getAttribute("heuresSuppTotals");
+                                java.util.Map<Long, BigDecimal> avancesMap = (java.util.Map<Long, BigDecimal>) request.getAttribute("avancesMap");
 
                                 if (employes != null && !employes.isEmpty()) {
                                     for (Employe employe : employes) {
@@ -753,14 +753,10 @@
                                         }
 
                                         // RÉCUPÉRATION DES HEURES SUPPLÉMENTAIRES
-                                        java.math.BigDecimal value = java.math.BigDecimal.ZERO;
                                         if (heuresSuppTotals != null && employe.getIdEmploye() != null) {
-                                            Object v = heuresSuppTotals.get(employe.getIdEmploye());
-                                            if (v instanceof java.math.BigDecimal) {
-                                                value = (java.math.BigDecimal) v;
-                                            }
+                                            BigDecimal value = heuresSuppTotals.get(employe.getIdEmploye());
+                                            heuresSuppDecimal = value != null ? value : BigDecimal.ZERO;
                                         }
-                                        heuresSuppDecimal = value;
                                         heuresSupp = heuresSuppDecimal.intValue();
 
                                         if (contrat != null) {
@@ -829,9 +825,18 @@
 
                                         BigDecimal salaireNet = salaireBrut.subtract(cnaps8).subtract(ostie5).subtract(irsa);
 
+                                        // RÉCUPÉRATION DE L'AVANCE DYNAMIQUE depuis avancesMap
                                         BigDecimal avance = BigDecimal.ZERO;
-                                        if (salaireNet.compareTo(new BigDecimal("200000")) > 0) {
-                                            avance = new BigDecimal("50000");
+                                        if (avancesMap != null && avancesMap.containsKey(employe.getIdEmploye())) {
+                                            avance = avancesMap.get(employe.getIdEmploye());
+                                            if (avance == null) {
+                                                avance = BigDecimal.ZERO;
+                                            }
+                                        } else {
+                                            // Fallback: avance fixe de 50,000 Ar si salaire > 200,000 Ar
+                                            if (salaireNet.compareTo(new BigDecimal("200000")) > 0) {
+                                                avance = new BigDecimal("50000");
+                                            }
                                         }
 
                                         BigDecimal netAPayer = salaireNet.subtract(avance);
@@ -855,10 +860,29 @@
                                 <td class="text-right"><%= String.format("%,.0f Ar", avance) %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", netAPayer) %></td>
                                 <td class="text-center">
-                                    <a href="<%= request.getContextPath() %>/paies/details?employeId=<%= employe.getIdEmploye() %>&month=<%= moisActuel %>&year=<%= anneeActuelle %>"
-                                       class="btn-action btn-view">
+                                    <button class="btn-action btn-view" onclick="afficherDetailsAvecAvance(
+                                        <%= employe.getIdEmploye() %>,
+                                        '<%= nomEmploye.replace("'", "\\'") %>',
+                                        '<%= dateEmbauche %>',
+                                        '<%= poste.replace("'", "\\'") %>',
+                                        '<%= nomDepartement.replace("'", "\\'") %>',
+                                        <%= salaireBase %>,
+                                        <%= heuresSupp %>,
+                                        <%= salaireBrut %>,
+                                        <%= majorationHeuresSupp %>,
+                                        <%= cnaps1 %>,
+                                        <%= cnaps8 %>,
+                                        <%= ostie1 %>,
+                                        <%= ostie5 %>,
+                                        <%= revenuImposable %>,
+                                        <%= irsa %>,
+                                        <%= salaireNet %>,
+                                        <%= avance %>,
+                                        <%= netAPayer %>,
+                                        <%= tauxHoraireNormal %>,
+                                        <%= tauxHoraireSupp %>)">
                                         <i class="fas fa-eye"></i> Détails
-                                    </a>
+                                    </button>
                                     <button class="btn-action btn-pdf" onclick="genererPDF(<%= employe.getIdEmploye() %>)">
                                         <i class="fas fa-file-pdf"></i> PDF
                                     </button>
@@ -897,7 +921,13 @@
     </div>
 
     <script>
-       
+        // FONCTION PRINCIPALE : Changer la période et recharger la page
+        function changerPeriode() {
+            const mois = document.getElementById('selectMonth').value;
+            const annee = document.getElementById('selectYear').value;
+            window.location.href = '/paies?month=' + mois + '&year=' + annee;
+        }
+
         function fermerModal() {
             document.getElementById('detailsModal').classList.remove('active');
         }
@@ -926,11 +956,6 @@
             return day + '/' + month + '/' + year;
         }
 
-<<<<<<< HEAD
-       
-
-=======
->>>>>>> 66a116a31290aa87725f19c0579e51ddd51c43fb
         // Fonction pour formater les montants
         function formaterMontant(montant) {
             return new Intl.NumberFormat('fr-FR').format(Math.round(montant)) + ' Ar';
@@ -1169,6 +1194,17 @@
             `;
 
             document.getElementById('detailsModal').classList.add('active');
+        }
+
+        // Fonction pour afficher les détails avec avance (alias pour compatibilité)
+        function afficherDetailsAvecAvance(employeId, nomEmploye, dateEmbauche, poste, departement,
+                                        salaireBase, heuresSupp, salaireBrut, majorationHeuresSupp,
+                                        cnaps1, cnaps8, ostie1, ostie5, revenuImposable, irsa,
+                                        salaireNet, avance, netAPayer, tauxHoraireNormal, tauxHoraireSupp) {
+            afficherDetails(employeId, nomEmploye, dateEmbauche, poste, departement,
+                          salaireBase, heuresSupp, salaireBrut, majorationHeuresSupp,
+                          cnaps1, cnaps8, ostie1, ostie5, revenuImposable, irsa,
+                          salaireNet, avance, netAPayer, tauxHoraireNormal, tauxHoraireSupp);
         }
 
         // =============================================

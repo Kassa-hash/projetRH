@@ -65,4 +65,9 @@ public class MoisService {
     {
         return  moisRepository.findAll();
     }
+    public Mois getMoisByLibelle(String libelleMois) {
+        return moisRepository.findByLibelle(libelleMois)
+                .orElse(null);
+    }
+
 }

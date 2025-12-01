@@ -47,4 +47,8 @@ public class DemandeAvanceService {
         return demandeAvanceRepository.findById((long) id)
                 .orElse(null);
     }
+
+    public List<DemandeAvance> getAvancesValideesByEmployeAndMois(Employe employe, Mois mois) {
+        return demandeAvanceRepository.findAvanceValideeByEmployeAndMois(employe, mois);
+    }
 }

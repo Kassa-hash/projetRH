@@ -263,7 +263,7 @@ public class DemandeController {
             }
 
             // Vérifier le montant (80% du salaire)
-            BigDecimal limite = salaireDeBase.multiply(new BigDecimal("0.8"));
+            BigDecimal limite = salaireDeBase.multiply(new BigDecimal("0.5"));
             System.out.println("Limite autorisée: " + limite);
 
             if (montant.compareTo(limite) > 0) {
