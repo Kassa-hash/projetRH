@@ -24,6 +24,6 @@ public class CongeSoldeService {
 
 
     public int getSoldeByEmp(Long idEmp) {
-        return congeSoldeRepository.soldeByEmploye(idEmp);
+        return congeSoldeRepository.soldeByEmployeCetteAnnee(idEmp);
     }
 }

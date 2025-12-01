@@ -49,7 +49,7 @@ public class ContratEmployeService {
                 int anneeDebut = localDate.getYear();
 
                 // Générer 5 années de solde congé
-                for (int i = 1; i <= 5; i++) {
+                for (int i = 0; i <= 5; i++) {
                     congeSoldeService.save(
                             new CongeSolde(
                                     contrat.getEmploye(),

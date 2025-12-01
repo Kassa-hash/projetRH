@@ -17,8 +17,8 @@ public class DemandeAvanceService {
     @Autowired
     private DemandeAvanceRepository demandeAvanceRepository;
 
-    public List<DemandeAvance> demandeAttente(){
-        List<DemandeAvance> demandes=demandeAvanceRepository.demandeAttente();
+    public List<DemandeAvance> demandeAttente() {
+        List<DemandeAvance> demandes = demandeAvanceRepository.demandeAttente();
         return demandes;
     }
 
@@ -26,11 +26,11 @@ public class DemandeAvanceService {
         return demandeAvanceRepository.save(demandeAvance);
     }
 
-    public List<DemandeAvance> demandeAll(){
+    public List<DemandeAvance> demandeAll() {
         return demandeAvanceRepository.findAll();
     }
 
-    public int nbAvanceValid(){
+    public int nbAvanceValid() {
         return demandeAvanceRepository.nbAvanceValid();
     }
 
@@ -50,5 +50,10 @@ public class DemandeAvanceService {
 
     public List<DemandeAvance> getAvancesValideesByEmployeAndMois(Employe employe, Mois mois) {
         return demandeAvanceRepository.findAvanceValideeByEmployeAndMois(employe, mois);
+    }
+
+    public List<DemandeAvance> getAvancesValideesByEmployeAndMoisIdAndYear(Employe employe, Long idMois,
+            Integer annee) {
+        return demandeAvanceRepository.findAvanceValideeByEmployeAndMoisIdAndYear(employe, idMois, annee);
     }
 }

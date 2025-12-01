@@ -287,6 +287,26 @@
             width: 150px;
         }
 
+        /* Styles pour la ligne de total */
+        .total-row {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            font-weight: bold;
+            font-size: 1.1em;
+            border-top: 3px solid #4a7c2c;
+        }
+
+        .total-label {
+            text-align: right;
+            padding-right: 20px !important;
+            font-size: 1.1em;
+            color: #2d5016;
+        }
+
+        .total-value {
+            color: #2d5016;
+            font-size: 1.1em;
+        }
+
         /* Modal styles */
         .modal {
             display: none;
@@ -486,7 +506,7 @@
             margin-top: 20px;
         }
 
-        .total-row {
+        .payroll-total-row {
             display: flex;
             justify-content: space-between;
             padding: 12px 0;
@@ -494,7 +514,7 @@
             border-bottom: 1px solid #d4edda;
         }
 
-        .total-row:last-child {
+        .payroll-total-row:last-child {
             border-bottom: none;
         }
 
@@ -727,6 +747,9 @@
                                 List<Employe> employes = (List<Employe>) request.getAttribute("employes");
                                 java.util.Map<Long, BigDecimal> heuresSuppTotals = (java.util.Map<Long, BigDecimal>) request.getAttribute("heuresSuppTotals");
                                 java.util.Map<Long, BigDecimal> avancesMap = (java.util.Map<Long, BigDecimal>) request.getAttribute("avancesMap");
+                                
+                                // Variable pour calculer la somme totale
+                                BigDecimal sommeNetAPayer = BigDecimal.ZERO;
 
                                 if (employes != null && !employes.isEmpty()) {
                                     for (Employe employe : employes) {
@@ -840,6 +863,9 @@
                                         }
 
                                         BigDecimal netAPayer = salaireNet.subtract(avance);
+                                        
+                                        // Ajouter au total
+                                        sommeNetAPayer = sommeNetAPayer.add(netAPayer);
                             %>
                             <tr>
                                 <td><%= nomEmploye %></td>
@@ -859,18 +885,18 @@
                                 <td class="text-right"><%= String.format("%,.0f Ar", salaireNet) %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", avance) %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", netAPayer) %></td>
-                    <td class="text-center">
-                        <!-- Nouveau bouton Détails qui redirige vers la page /paies/details -->
-                        <button class="btn-action btn-view"
-                                onclick="window.location.href='/paies/details?employeId=<%= employe.getIdEmploye() %>&month=<%= moisActuel %>&year=<%= anneeActuelle %>'">
-                            <i class="fas fa-eye"></i> Détails
-                        </button>
+                                <td class="text-center">
+                                    <!-- Nouveau bouton Détails qui redirige vers la page /paies/details -->
+                                    <button class="btn-action btn-view"
+                                            onclick="window.location.href='/paies/details?employeId=<%= employe.getIdEmploye() %>&month=<%= moisActuel %>&year=<%= anneeActuelle %>'">
+                                        <i class="fas fa-eye"></i> Détails
+                                    </button>
 
-                        <!-- Garder le bouton PDF -->
-                        <button class="btn-action btn-pdf" onclick="genererPDF(<%= employe.getIdEmploye() %>)">
-                            <i class="fas fa-file-pdf"></i> PDF
-                        </button>
-                    </td>
+                                    <!-- Garder le bouton PDF -->
+                                    <button class="btn-action btn-pdf" onclick="genererPDF(<%= employe.getIdEmploye() %>)">
+                                        <i class="fas fa-file-pdf"></i> PDF
+                                    </button>
+                                </td>
                             </tr>
                             <%
                                     }
@@ -882,6 +908,14 @@
                             <%
                                 }
                             %>
+                            
+                            <!-- Ligne de total -->
+                            <tr class="total-row">
+                                <td colspan="15" class="total-label">SOMME NET À PAYER :</td>
+                                <td colspan="3" class="text-right total-value">
+                                    <%= String.format("%,.0f Ar", sommeNetAPayer) %>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -1117,27 +1151,27 @@
                     <!-- Récapitulatif -->
                     <div class="totals-section">
                         <h3 class="section-title">RÉCAPITULATIF</h3>
-                        <div class="total-row">
+                        <div class="payroll-total-row">
                             <span>Salaire brut :</span>
                             <span class="amount">${formaterMontant(salaireBrut)}</span>
                         </div>
-                        <div class="total-row">
+                        <div class="payroll-total-row">
                             <span>Cotisations sociales employé :</span>
                             <span class="amount">- ${formaterMontant(cnaps1 + ostie1)}</span>
                         </div>
-                        <div class="total-row">
+                        <div class="payroll-total-row">
                             <span>Impôt sur le revenu (IRSA) :</span>
                             <span class="amount">- ${formaterMontant(irsa)}</span>
                         </div>
-                        <div class="total-row">
+                        <div class="payroll-total-row">
                             <span>Salaire net avant avance :</span>
                             <span class="amount">${formaterMontant(salaireNet)}</span>
                         </div>
-                        <div class="total-row">
+                        <div class="payroll-total-row">
                             <span>Avance sur salaire :</span>
                             <span class="amount">- ${formaterMontant(avance)}</span>
                         </div>
-                        <div class="total-row net-payable">
+                        <div class="payroll-total-row net-payable">
                             <span>NET À PAYER :</span>
                             <span class="amount">${formaterMontant(netAPayer)}</span>
                         </div>
@@ -1167,7 +1201,7 @@
                             <p>Pour acquit</p>
                             <div class="signature-line"></div>
                             <p>L'employé</p>
-                        </div>
+                        </div>va
                     </div>
 
                     <!-- Bouton d'impression -->
@@ -1197,6 +1231,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Page chargée - Mois: <%= moisActuel %>, Année: <%= anneeActuelle %>');
             console.log('Nombre d\'employés: <%= employes != null ? employes.size() : 0 %>');
+            console.log('Somme net à payer: <%= String.format("%,.0f Ar", sommeNetAPayer) %>');
 
             // Gestion des onglets principaux
             document.querySelectorAll('.tab').forEach(tab => {
@@ -1224,7 +1259,7 @@
             // Filtrage par département (optionnel - côté client)
             document.getElementById('filterDepartment').addEventListener('change', function() {
                 const dept = this.value.toLowerCase();
-                const rows = document.querySelectorAll('tbody tr');
+                const rows = document.querySelectorAll('tbody tr:not(.total-row)');
 
                 rows.forEach(row => {
                     if (dept === '') {

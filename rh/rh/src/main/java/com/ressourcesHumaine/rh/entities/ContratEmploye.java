@@ -1,6 +1,7 @@
 package com.ressourcesHumaine.rh.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.Date;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,10 +26,13 @@ public class ContratEmploye {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "Id_Poste")
+  @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
   private Poste poste;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "Id_Employe")
+  @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+  @JsonIgnore
   private Employe employe;
 
   @Column(name = "Duree")
@@ -36,6 +40,7 @@ public class ContratEmploye {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "Id_TypeContrat", nullable = false)
+  @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
   private TypeContrat typeContrat;
 
   // Getters and Setters

@@ -1,6 +1,7 @@
 package com.ressourcesHumaine.rh.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ressourcesHumaine.rh.services.HeureSuppService;
 import jakarta.persistence.*;
 
@@ -35,23 +36,27 @@ public class Employe {
     @Column(name = "adresse", length = 50)
     private String adresse;
 
-    @Column(name="mdp")
+    @Column(name = "mdp")
     private String mdp;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Id_Role", nullable = true)
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Id_Genre", nullable = false)
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Genre genre;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Id_Departement", nullable = true)
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Departement departement;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="Id_ContratEmploye")
+    @JoinColumn(name = "Id_ContratEmploye")
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private ContratEmploye contratEmploye;
 
     // Getters et Setters
@@ -151,15 +156,15 @@ public class Employe {
         this.departement = departement;
     }
 
-    public BigDecimal getCoutHeureSupp(int mois, int annee)
-    {
+    public BigDecimal getCoutHeureSupp(int mois, int annee) {
 
         return BigDecimal.ZERO;
     }
 
     public BigDecimal getCoutHeureSupp(java.math.BigDecimal heuresSupp) {
         java.math.BigDecimal salaireBase = java.math.BigDecimal.ZERO;
-        if (this.getContratEmploye() != null && this.getContratEmploye().getPoste() != null && this.getContratEmploye().getPoste().getSalaireDeBase() != null) {
+        if (this.getContratEmploye() != null && this.getContratEmploye().getPoste() != null
+                && this.getContratEmploye().getPoste().getSalaireDeBase() != null) {
             salaireBase = this.getContratEmploye().getPoste().getSalaireDeBase();
         }
         java.math.BigDecimal heuresMensuelles = new java.math.BigDecimal("173.33");

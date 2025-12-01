@@ -61,4 +61,5 @@ public class Paie {
     public void setMois(Mois mois) { this.mois = mois; }
     public Employe getEmploye() { return employe; }
     public void setEmploye(Employe employe) { this.employe = employe; }
+    
 }

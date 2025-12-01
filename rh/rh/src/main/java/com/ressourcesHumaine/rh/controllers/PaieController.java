@@ -104,7 +104,39 @@ public class PaieController {
                 logger.info("=== MAP finale heuresSuppTotals: {} ===", heuresSuppTotals);
             }
 
+            // Calculer les avances validées par employé pour le mois sélectionné
+            Map<Long, BigDecimal> avancesMap = new HashMap<>();
+            try {
+                // Use id_mois and year extracted from date_ instead of string libelle
+                Long idMois = Long.valueOf(mois);
+                if (employes != null && !employes.isEmpty()) {
+                    for (Employe e : employes) {
+                        if (e == null || e.getIdEmploye() == null)
+                            continue;
+                        try {
+                            List<DemandeAvance> avances = demandeAvanceService
+                                    .getAvancesValideesByEmployeAndMoisIdAndYear(e, idMois, annee);
+                            BigDecimal total = BigDecimal.ZERO;
+                            if (avances != null && !avances.isEmpty()) {
+                                total = avances.stream()
+                                        .map(DemandeAvance::getMontant)
+                                        .filter(Objects::nonNull)
+                                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                            }
+                            avancesMap.put(e.getIdEmploye(), total);
+                        } catch (Exception ex) {
+                            logger.error("Erreur en calculant avance pour employe {}: {}", e.getIdEmploye(),
+                                    ex.getMessage(), ex);
+                            avancesMap.put(e.getIdEmploye(), BigDecimal.ZERO);
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                logger.error("Erreur lors du calcul des avances : {}", ex.getMessage(), ex);
+            }
+
             model.addAttribute("heuresSuppTotals", heuresSuppTotals);
+            model.addAttribute("avancesMap", avancesMap);
 
             logger.info("=== FIN showPaie - Redirection vers Paie.jsp ===");
             return "Paie";
@@ -117,7 +149,6 @@ public class PaieController {
             return "Paie";
         }
     }
-
 
     @GetMapping("/details")
     public String showPaieDetails(
@@ -141,14 +172,13 @@ public class PaieController {
                 return "erreur";
             }
 
-            // Récupérer le mois correspondant
-            String libelleMois = moisService.construireLibelleMois(mois, annee);
-            Mois moisEntity = moisService.getMoisByLibelle(libelleMois);
-
-            // Récupérer l'avance réelle
+            // Récupérer l'avance réelle en se basant sur id_mois et l'année de la colonne
+            // date_
             BigDecimal avanceReelle = BigDecimal.ZERO;
-            if (moisEntity != null) {
-                List<DemandeAvance> avances = demandeAvanceService.getAvancesValideesByEmployeAndMois(employe, moisEntity);
+            try {
+                Long idMois = Long.valueOf(mois);
+                List<DemandeAvance> avances = demandeAvanceService.getAvancesValideesByEmployeAndMoisIdAndYear(employe,
+                        idMois, annee);
                 if (avances != null && !avances.isEmpty()) {
                     // Calculer le total des avances validées pour ce mois
                     avanceReelle = avances.stream()
@@ -156,6 +186,8 @@ public class PaieController {
                             .filter(Objects::nonNull)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
                 }
+            } catch (Exception ex) {
+                logger.warn("Impossible de calculer avanceReelle par idMois/annee: {}", ex.getMessage());
             }
 
             // Récupérer les informations nécessaires
@@ -196,7 +228,8 @@ public class PaieController {
             BigDecimal tauxMajoration = new BigDecimal("1.5");
             BigDecimal tauxHoraireNormal = salaireBase.divide(heuresParMois, 2, RoundingMode.HALF_UP);
             BigDecimal tauxHoraireSupp = tauxHoraireNormal.multiply(tauxMajoration);
-            BigDecimal majorationHeuresSupp = tauxHoraireSupp.multiply(heuresSuppDecimal != null ? heuresSuppDecimal : BigDecimal.ZERO);
+            BigDecimal majorationHeuresSupp = tauxHoraireSupp
+                    .multiply(heuresSuppDecimal != null ? heuresSuppDecimal : BigDecimal.ZERO);
             BigDecimal salaireBrut = salaireBase.add(majorationHeuresSupp);
 
             BigDecimal cnaps1 = salaireBrut.multiply(new BigDecimal("0.01")).setScale(0, RoundingMode.HALF_UP);
@@ -297,7 +330,6 @@ public class PaieController {
         }
     }
 
-
     /**
      * NOUVELLE METHODE: Valider et enregistrer une paie
      */
@@ -339,12 +371,11 @@ public class PaieController {
                     moisEntity,
                     salaireBase,
                     salaireBrut,
-                    cnaps1,        // Stockage cnaps1 (part employé)
-                    ostie1,        // Stockage ostie1 (part employé)
+                    cnaps1, // Stockage cnaps1 (part employé)
+                    ostie1, // Stockage ostie1 (part employé)
                     revenuImposable,
                     irsa,
-                    netAPayer
-            );
+                    netAPayer);
 
             logger.info("Paie validée avec succès - ID: {}", paie.getIdPaie());
 
@@ -362,8 +393,8 @@ public class PaieController {
     }
 
     private String getNomMois(int mois) {
-        String[] nomsMois = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
+        String[] nomsMois = { "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" };
         return mois >= 1 && mois <= 12 ? nomsMois[mois - 1] : "Mois inconnu";
     }
 }
