@@ -1,7 +1,11 @@
 package com.ressourcesHumaine.rh.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ressourcesHumaine.rh.services.HeureSuppService;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 
 @Entity
@@ -145,5 +149,27 @@ public class Employe {
 
     public void setDepartement(Departement departement) {
         this.departement = departement;
+    }
+
+    public BigDecimal getCoutHeureSupp(int mois, int annee)
+    {
+
+        return BigDecimal.ZERO;
+    }
+
+    public BigDecimal getCoutHeureSupp(java.math.BigDecimal heuresSupp) {
+        java.math.BigDecimal salaireBase = java.math.BigDecimal.ZERO;
+        if (this.getContratEmploye() != null && this.getContratEmploye().getPoste() != null && this.getContratEmploye().getPoste().getSalaireDeBase() != null) {
+            salaireBase = this.getContratEmploye().getPoste().getSalaireDeBase();
+        }
+        java.math.BigDecimal heuresMensuelles = new java.math.BigDecimal("173.33");
+        java.math.BigDecimal tauxHoraire = java.math.BigDecimal.ZERO;
+        if (salaireBase.compareTo(java.math.BigDecimal.ZERO) > 0) {
+            tauxHoraire = salaireBase.divide(heuresMensuelles, 10, java.math.RoundingMode.HALF_UP);
+        }
+        if (heuresSupp == null) {
+            heuresSupp = java.math.BigDecimal.ZERO;
+        }
+        return heuresSupp.multiply(tauxHoraire);
     }
 }

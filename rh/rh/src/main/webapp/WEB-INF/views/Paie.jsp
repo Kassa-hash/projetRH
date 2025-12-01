@@ -6,6 +6,7 @@
 <%@ page import="com.ressourcesHumaine.rh.entities.ContratEmploye" %>
 <%@ page import="com.ressourcesHumaine.rh.entities.Departement" %>
 <%@ page import="com.ressourcesHumaine.rh.entities.Poste" %>
+<%@ page import="com.ressourcesHumaine.rh.services.HeureSuppService" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -14,7 +15,6 @@
     <title>Système de Gestion de Paie</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* [Vos styles CSS restent exactement les mêmes] */
         * {
             margin: 0;
             padding: 0;
@@ -105,6 +105,32 @@
             min-width: 200px;
         }
 
+        .filter-group select:focus {
+            outline: none;
+            border-color: #2d5016;
+            box-shadow: 0 0 8px rgba(74, 124, 44, 0.3);
+        }
+
+        .period-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .period-selector label {
+            font-weight: 600;
+            color: #4a7c2c;
+            white-space: nowrap;
+        }
+
+        .period-selector select {
+            min-width: 150px;
+        }
+
         .btn {
             padding: 12px 24px;
             border: none;
@@ -128,6 +154,23 @@
             box-shadow: 0 6px 20px rgba(74, 124, 44, 0.4);
         }
 
+        .btn-filter {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
         .content {
             padding: 30px;
         }
@@ -138,6 +181,26 @@
 
         .tab-content.active {
             display: block;
+        }
+
+        .info-banner {
+            background: #d4edda;
+            border: 2px solid #4a7c2c;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-banner i {
+            font-size: 1.5em;
+            color: #4a7c2c;
+        }
+
+        .info-banner strong {
+            color: #2d5016;
         }
 
         /* Styles pour les tableaux */
@@ -343,6 +406,51 @@
     </style>
 </head>
 <body>
+    <%
+        // Récupération du mois et de l'année actuels utilisés par le contrôleur
+        // On vérifie d'abord les paramètres de requête (GET), puis les attributs de requête
+        Integer moisActuel = null;
+        Integer anneeActuelle = null;
+
+        String moisParam = request.getParameter("month");
+        String anneeParam = request.getParameter("year");
+
+        if (moisParam != null && !moisParam.trim().isEmpty()) {
+            try {
+                moisActuel = Integer.parseInt(moisParam);
+            } catch (NumberFormatException e) {
+                // Garder la valeur par défaut
+            }
+        }
+
+        if (anneeParam != null && !anneeParam.trim().isEmpty()) {
+            try {
+                anneeActuelle = Integer.parseInt(anneeParam);
+            } catch (NumberFormatException e) {
+                // Garder la valeur par défaut
+            }
+        }
+
+        // Si les paramètres GET ne sont pas présents, utiliser les attributs de la requête
+        if (moisActuel == null) {
+            moisActuel = (Integer) request.getAttribute("moisActuel");
+        }
+        if (anneeActuelle == null) {
+            anneeActuelle = (Integer) request.getAttribute("anneeActuelle");
+        }
+
+        // Si toujours non définis, utiliser le mois/année actuels
+        if (moisActuel == null) {
+            moisActuel = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1;
+        }
+        if (anneeActuelle == null) {
+            anneeActuelle = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+        }
+
+        String[] nomsMois = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                            "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
+    %>
+
     <div class="container">
         <header>
             <h1><i class="fas fa-money-check-alt"></i> Système de Gestion de Paie</h1>
@@ -355,26 +463,28 @@
 
         <div class="controls">
             <div class="filter-group">
-                <select id="filterMonth">
-                    <option value="">Tous les mois</option>
-                    <option value="1">Janvier</option>
-                    <option value="2">Février</option>
-                    <option value="3">Mars</option>
-                    <option value="4">Avril</option>
-                    <option value="5">Mai</option>
-                    <option value="6">Juin</option>
-                    <option value="7">Juillet</option>
-                    <option value="8">Août</option>
-                    <option value="9">Septembre</option>
-                    <option value="10">Octobre</option>
-                    <option value="11">Novembre</option>
-                    <option value="12">Décembre</option>
-                </select>
-                <select id="filterYear">
-                    <option value="">Toutes les années</option>
-                    <option value="2023">2023</option>
-                    <option value="2024">2024</option>
-                </select>
+                <!-- Sélecteur de période (Mois/Année) avec bouton Valider -->
+                <div class="period-selector">
+                    <label><i class="fas fa-calendar-alt"></i> Période :</label>
+                    <select id="selectMonth">
+                        <% for (int i = 1; i <= 12; i++) { %>
+                            <option value="<%= i %>" <%= (i == moisActuel) ? "selected" : "" %>>
+                                <%= nomsMois[i-1] %>
+                            </option>
+                        <% } %>
+                    </select>
+                    <select id="selectYear">
+                        <% for (int y = 2020; y <= 2025; y++) { %>
+                            <option value="<%= y %>" <%= (y == anneeActuelle) ? "selected" : "" %>>
+                                <%= y %>
+                            </option>
+                        <% } %>
+                    </select>
+                    <button class="btn btn-filter" onclick="changerPeriode()">
+                        <i class="fas fa-check"></i> Valider
+                    </button>
+                </div>
+
                 <select id="filterDepartment">
                     <option value="">Tous les départements</option>
                     <option value="IT">IT</option>
@@ -391,7 +501,15 @@
         <div class="content">
             <!-- Section des bulletins de paie -->
             <div class="tab-content active" id="payroll">
-                <h2>Bulletins de Paie</h2>
+                <div class="info-banner">
+                    <i class="fas fa-info-circle"></i>
+                    <span>
+                        Affichage des bulletins de paie pour
+                        <strong><%= nomsMois[moisActuel-1] %> <%= anneeActuelle %></strong>
+                    </span>
+                </div>
+
+                <h2>Bulletins de Paie - <%= nomsMois[moisActuel-1] %> <%= anneeActuelle %></h2>
 
                 <div class="table-container">
                     <table>
@@ -404,6 +522,7 @@
                                 <th>Salaire de Base</th>
                                 <th>Heures Supp</th>
                                 <th>Salaire Brut</th>
+                                <th>Coût Heures Supp</th>
                                 <th>CNAPS 1%</th>
                                 <th>CNAPS 8%</th>
                                 <th>OSTIE 1%</th>
@@ -419,75 +538,71 @@
                         <tbody>
                             <%
                                 List<Employe> employes = (List<Employe>) request.getAttribute("employes");
+                                java.util.Map heuresSuppTotals = (java.util.Map) request.getAttribute("heuresSuppTotals");
+
                                 if (employes != null && !employes.isEmpty()) {
                                     int index = 0;
                                     for (Employe employe : employes) {
-                                        // Vérification de sécurité pour éviter les ID null ou 0
                                         if (employe.getIdEmploye() == null || employe.getIdEmploye() <= 0) {
-                                            continue; // Skip les employés avec ID invalide
+                                            continue;
                                         }
 
-                                        // Récupération des informations du contrat et département
                                         ContratEmploye contrat = employe.getContratEmploye();
                                         Departement dept = employe.getDepartement();
 
-                                        // Valeurs par défaut pour les nouveaux employés sans contrat
                                         BigDecimal salaireBase = BigDecimal.ZERO;
+                                        BigDecimal heuresSuppDecimal = BigDecimal.ZERO;
                                         int heuresSupp = 0;
                                         String dateEmbauche = "N/A";
                                         String poste = "N/A";
                                         String nomDepartement = "N/A";
 
-                                        // Gestion du nom de l'employé
                                         String nomEmploye = (employe.getNom() != null && !employe.getNom().trim().isEmpty())
                                             ? employe.getNom()
                                             : "Employé " + employe.getIdEmploye();
 
-                                        // Gestion du département
                                         if (dept != null && dept.getNom() != null) {
                                             nomDepartement = dept.getNom();
                                         }
 
+                                        // RÉCUPÉRATION DES HEURES SUPPLÉMENTAIRES
+                                        java.math.BigDecimal value = java.math.BigDecimal.ZERO;
+                                        if (heuresSuppTotals != null && employe.getIdEmploye() != null) {
+                                            Object v = heuresSuppTotals.get(employe.getIdEmploye());
+                                            if (v instanceof java.math.BigDecimal) {
+                                                value = (java.math.BigDecimal) v;
+                                            }
+                                        }
+                                        heuresSuppDecimal = value;
+                                        heuresSupp = heuresSuppDecimal.intValue();
+
                                         if (contrat != null) {
-                                            // Récupération de la date d'embauche
                                             if (contrat.getDate() != null) {
                                                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
                                                 dateEmbauche = sdf.format(contrat.getDate());
                                             }
 
-                                            // Récupération du poste
                                             if (contrat.getPoste() != null && contrat.getPoste().getSalaireDeBase() != null) {
                                                 poste = contrat.getPoste().getLibelle();
                                                 salaireBase = contrat.getPoste().getSalaireDeBase();
                                             }
                                         }
 
-                                        // Calculs de paie avec BigDecimal
+                                        // CALCULS DE PAIE
                                         BigDecimal heuresParMois = new BigDecimal("173.33");
                                         BigDecimal tauxMajoration = new BigDecimal("1.5");
-
-                                        // Taux horaire normal = salaireBase / 173.33
                                         BigDecimal tauxHoraireNormal = salaireBase.divide(heuresParMois, 2, RoundingMode.HALF_UP);
-
-                                        // Taux horaire supplémentaire = taux horaire normal * 1.5
                                         BigDecimal tauxHoraireSupp = tauxHoraireNormal.multiply(tauxMajoration);
-
-                                        // Majoration heures supplémentaires
-                                        BigDecimal majorationHeuresSupp = tauxHoraireSupp.multiply(new BigDecimal(heuresSupp));
-
-                                        // Salaire brut = salaire de base + majoration heures supp
+                                        BigDecimal majorationHeuresSupp = tauxHoraireSupp.multiply(heuresSuppDecimal);
                                         BigDecimal salaireBrut = salaireBase.add(majorationHeuresSupp);
 
-                                        // Calcul des cotisations
                                         BigDecimal cnaps1 = salaireBrut.multiply(new BigDecimal("0.01")).setScale(0, RoundingMode.HALF_UP);
                                         BigDecimal cnaps8 = salaireBrut.multiply(new BigDecimal("0.08")).setScale(0, RoundingMode.HALF_UP);
                                         BigDecimal ostie1 = salaireBrut.multiply(new BigDecimal("0.01")).setScale(0, RoundingMode.HALF_UP);
                                         BigDecimal ostie5 = salaireBrut.multiply(new BigDecimal("0.05")).setScale(0, RoundingMode.HALF_UP);
-
-                                        // Revenu imposable = salaire brut - cnaps1 - ostie1
                                         BigDecimal revenuImposable = salaireBrut.subtract(cnaps1).subtract(ostie1);
 
-                                        // Calcul IRSA progressif avec BigDecimal
+                                        // Calcul IRSA
                                         BigDecimal irsa = BigDecimal.ZERO;
                                         BigDecimal seuil1 = new BigDecimal("350000");
                                         BigDecimal seuil2 = new BigDecimal("650000");
@@ -525,18 +640,14 @@
 
                                         irsa = irsa.setScale(0, RoundingMode.HALF_UP);
 
-                                        // Salaire net = salaire brut - cnaps8 - ostie5 - irsa
                                         BigDecimal salaireNet = salaireBrut.subtract(cnaps8).subtract(ostie5).subtract(irsa);
 
-                                        // Avance conditionnelle
                                         BigDecimal avance = BigDecimal.ZERO;
                                         if (salaireNet.compareTo(new BigDecimal("200000")) > 0) {
                                             avance = new BigDecimal("50000");
                                         }
 
-                                        // Net à payer = salaire net - avance
                                         BigDecimal netAPayer = salaireNet.subtract(avance);
-
                                         index++;
                             %>
                             <tr>
@@ -547,6 +658,7 @@
                                 <td class="text-right"><%= String.format("%,.0f Ar", salaireBase) %></td>
                                 <td class="text-right"><%= heuresSupp %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", salaireBrut) %></td>
+                                <td class="text-right"><%= String.format("%,.0f Ar", majorationHeuresSupp) %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", cnaps1) %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", cnaps8) %></td>
                                 <td class="text-right"><%= String.format("%,.0f Ar", ostie1) %></td>
@@ -570,7 +682,7 @@
                                 } else {
                             %>
                             <tr>
-                                <td colspan="17" class="text-center">Aucun employé trouvé</td>
+                                <td colspan="18" class="text-center">Aucun employé trouvé</td>
                             </tr>
                             <%
                                 }
@@ -598,6 +710,15 @@
     </div>
 
     <script>
+        // FONCTION PRINCIPALE : Changer la période et recharger la page
+        function changerPeriode() {
+            const mois = document.getElementById('selectMonth').value;
+            const annee = document.getElementById('selectYear').value;
+
+            // Rediriger vers la même page avec les paramètres mois et année
+            window.location.href = '/paies?month=' + mois + '&year=' + annee;
+        }
+
         // Fonction pour formater les montants
         function formaterMontant(montant) {
             return new Intl.NumberFormat('fr-FR').format(montant) + ' Ar';
@@ -605,7 +726,6 @@
 
         // Fonction pour afficher les détails
         function afficherDetails(employeId) {
-            // Pour l'instant, on utilise des données statiques
             const detailsContent = document.getElementById('detailsContent');
 
             detailsContent.innerHTML = `
@@ -672,6 +792,42 @@
                     fermerModal();
                 }
             });
+
+            // Filtrage par département (optionnel - côté client)
+            document.getElementById('filterDepartment').addEventListener('change', function() {
+                const dept = this.value.toLowerCase();
+                const rows = document.querySelectorAll('tbody tr');
+
+                rows.forEach(row => {
+                    if (dept === '') {
+                        row.style.display = '';
+                    } else {
+                        const deptCell = row.cells[3]; // Colonne département
+                        if (deptCell && deptCell.textContent.toLowerCase().includes(dept)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            });
+
+            // Gestion de la touche Enter sur les sélecteurs
+            const selectMonth = document.getElementById('selectMonth');
+            const selectYear = document.getElementById('selectYear');
+
+            function validerAvecEnter(e) {
+                if (e.key === 'Enter') {
+                    changerPeriode();
+                }
+            }
+
+            if (selectMonth) selectMonth.addEventListener('keypress', validerAvecEnter);
+            if (selectYear) selectYear.addEventListener('keypress', validerAvecEnter);
+
+            // Afficher un message si des heures supplémentaires ne s'affichent pas
+            console.log('Page chargée - Mois: <%= moisActuel %>, Année: <%= anneeActuelle %>');
+            console.log('Nombre d\'employés: <%= employes != null ? employes.size() : 0 %>');
         });
     </script>
 </body>
