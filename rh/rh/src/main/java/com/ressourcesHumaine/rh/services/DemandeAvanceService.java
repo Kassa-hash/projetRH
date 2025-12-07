@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Service
 public class DemandeAvanceService {
@@ -59,7 +60,7 @@ public class DemandeAvanceService {
                 .filter(avance -> {
                     // Vérifie si le mois correspond
                     Mois moisEntity = avance.getMois();
-                    return moisEntity.getNumeroMois() == mois && moisEntity.getAnnee() == annee;
+                    return moisEntity.getIdMois() == mois;
                 })
                 .filter(avance -> "validee".equals(avance.getStatus()))
                 .collect(Collectors.toList());
@@ -68,5 +69,12 @@ public class DemandeAvanceService {
     public List<DemandeAvance> getAvancesValideesByEmployeAndMoisIdAndYear(Employe employe, Long idMois,
             Integer annee) {
         return demandeAvanceRepository.findAvanceValideeByEmployeAndMoisIdAndYear(employe, idMois, annee);
+    }
+
+    public List<DemandeAvance> getAvancesValideesByEmployeAndMois(Employe employe, Mois mois) {
+        if (employe == null || mois == null) {
+            return Collections.emptyList();
+        }
+        return demandeAvanceRepository.findAvanceValideeByEmployeAndMois(employe, mois);
     }
 }
