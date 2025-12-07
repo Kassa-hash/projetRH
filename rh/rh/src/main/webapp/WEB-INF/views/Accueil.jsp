@@ -1,4 +1,24 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
+<%@ page import="java.util.List"%>
+<%@ page import="com.ressourcesHumaine.rh.entities.Employe"%>
+<%@ page import="com.ressourcesHumaine.rh.entities.DemandeConge"%>
+<%@ page import="com.ressourcesHumaine.rh.entities.DemandeAvance"%>
+<%@ page import="com.ressourcesHumaine.rh.entities.Historique"%>
+
+<%
+    List<Employe> employesActuels=(List<Employe>) request.getAttribute("employesActuels");
+    int nbEmployesActuels=employesActuels != null ? employesActuels.size() : 0;
+
+    List<DemandeConge> demandesConge=(List<DemandeConge>) request.getAttribute("demandesConge");
+    int nbdemandesConge=demandesConge != null ? demandesConge.size() : 0;
+
+    List<DemandeAvance> demandesAvance=(List<DemandeAvance>) request.getAttribute("demandesAvance");
+    int nbdemandesAvances=demandesAvance != null ? demandesAvance.size() : 0;
+
+    int nbDemandes=nbdemandesAvances+nbdemandesConge;
+
+    List<Historique> historiques=(List<Historique>) request.getAttribute("historiques");
+%>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -445,6 +465,93 @@
             transition: width 0.3s;
         }
 
+        .ai-btn {
+            padding: 10px 20px;
+            background: #4a7c2c;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .ai-btn:hover {
+            background: #3c6523;
+            transform: translateY(-2px);
+        }
+
+        #chatIA {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 360px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            z-index: 9999;
+        }
+
+        #chatIA header {
+            background: linear-gradient(135deg, #4a7c2c 0%, #3c6523 100%);
+            color: white;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #chatIA header .close-btn {
+            cursor: pointer;
+            font-size: 1.5em;
+            line-height: 1;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        #chatIA header .close-btn:hover {
+            opacity: 1;
+        }
+
+        #chatMessages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            font-size: 0.9em;
+            background: #f8f9fa;
+        }
+
+        #chatMessages p {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+
+        #chatMessages p strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #4a7c2c;
+        }
+
+        #chatInput {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-top: 2px solid #e0e0e0;
+            outline: none;
+            font-size: 0.95em;
+        }
+
+        #chatInput:focus {
+            border-top-color: #4a7c2c;
+        }
+
         @media (max-width: 1200px) {
             .charts-grid {
                 grid-template-columns: 1fr;
@@ -464,33 +571,27 @@
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
+
+            #chatIA {
+                width: 90%;
+                right: 5%;
+            }
         }
     </style>
 </head>
-<%@ page import="java.util.List"%>
-<%@ page import="com.ressourcesHumaine.rh.entities.Employe"%>
-<%@ page import="com.ressourcesHumaine.rh.entities.DemandeConge"%>
-<%@ page import="com.ressourcesHumaine.rh.entities.DemandeAvance"%>
-<%@ page import="com.ressourcesHumaine.rh.entities.Historique"%>
-
-<% 
-    List<Employe> employesActuels=(List<Employe>) request.getAttribute("employesActuels");
-    int nbEmployesActuels=employesActuels.size();
-
-    List<DemandeConge> demandesConge=(List<DemandeConge>) request.getAttribute("demandesConge");
-    int nbdemandesConge=demandesConge.size();
-
-    List<DemandeAvance> demandesAvance=(List<DemandeAvance>) request.getAttribute("demandesAvance");
-    int nbdemandesAvances=demandesAvance.size();
-
-    //total demandes
-    int nbDemandes=nbdemandesAvances+nbdemandesConge;
-
-    //liste des historiques des evenements
-    List<Historique> historiques=(List<Historique>) request.getAttribute("historiques");
-%>
-
 <body>
+    <!-- Chat IA -->
+    <div id="chatIA">
+        <header>
+            <span>🤖 Assistant IA RH</span>
+            <span class="close-btn" onclick="closeAIChat()">×</span>
+        </header>
+        <div id="chatMessages">
+            <p><strong>Assistant :</strong> Bonjour ! Je suis votre assistant RH. Posez-moi vos questions sur les employés, les présences, les congés, etc.</p>
+        </div>
+        <input id="chatInput" type="text" placeholder="Tapez votre question ici...">
+    </div>
+
     <div class="sidebar">
         <div class="logo">
             <h1>🏢 RH Manager</h1>
@@ -498,51 +599,66 @@
         </div>
 
         <div class="menu">
-            <a href="/"><div class="menu-item active">
-                <i>📊</i>
-                <span>Tableau de Bord</span>
-            </div></a>
-            <a href="/employes"><div class="menu-item">
-                <i>👥</i>
-                <span>Employés</span>
-            </div></a>
-            <a href="/contrats"><div class="menu-item">
-                <i>📋</i>
-                <span>Contrats</span>
-            </div></a>
-
-            <a href="/presences"><div class="menu-item">
-                <i>✅</i>
-                <span>Présences</span>
-            </div></a>
-            <a href="/pointages"><div class="menu-item">
-                <i>⏰</i>
-                <span>Pointages</span>
-            </div></a>
-            <a href="/heures-supp">
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <div class="menu-item active">
+                    <i>📊</i>
+                    <span>Tableau de Bord</span>
+                </div>
+            </a>
+            <a href="/employes" style="text-decoration: none; color: inherit;">
+                <div class="menu-item">
+                    <i>👥</i>
+                    <span>Employés</span>
+                </div>
+            </a>
+            <a href="/contrats" style="text-decoration: none; color: inherit;">
+                <div class="menu-item">
+                    <i>📋</i>
+                    <span>Contrats</span>
+                </div>
+            </a>
+            <a href="/presences" style="text-decoration: none; color: inherit;">
+                <div class="menu-item">
+                    <i>✅</i>
+                    <span>Présences</span>
+                </div>
+            </a>
+            <a href="/pointages" style="text-decoration: none; color: inherit;">
+                <div class="menu-item">
+                    <i>⏰</i>
+                    <span>Pointages</span>
+                </div>
+            </a>
+            <a href="/heures-supp" style="text-decoration: none; color: inherit;">
                 <div class="menu-item">
                     <i>⏱️</i>
                     <span>Heures Supp</span>
                 </div>
             </a>
-            <a href="/demandes"><div class="menu-item">
-                <i>🏖️</i>
-                <span>Demande de congés et d'avances'</span>
-            </div></a>
-
-              <a href="/employes/goLogin"><div class="menu-item">
-                <i>👥</i>
-              <span>Utilisateur</span>
-            </div></a>
-
-              <a href="/paies"><div class="menu-item">
-                            <i>👥</i>
-                          <span>Gestion de paiement</span>
-                        </div></a>
-             <div class="menu-item">
-                <i>📁</i>
-                 <span>Gestion de document</span>
-              </div>
+            <a href="/demandes" style="text-decoration: none; color: inherit;">
+                <div class="menu-item">
+                    <i>🏖️</i>
+                    <span>Demandes</span>
+                </div>
+            </a>
+            <a href="/employes/goLogin" style="text-decoration: none; color: inherit;">
+                <div class="menu-item">
+                    <i>🔐</i>
+                    <span>Utilisateur</span>
+                </div>
+            </a>
+            <a href="/paies" style="text-decoration: none; color: inherit;">
+                <div class="menu-item">
+                    <i>💰</i>
+                    <span>Gestion de paiement</span>
+                </div>
+            </a>
+            <a href="/documents" style="text-decoration: none; color: inherit;">
+                <div class="menu-item">
+                    <i>📁</i>
+                    <span>Gestion de document</span>
+                </div>
+            </a>
         </div>
 
         <div class="user-section">
@@ -563,6 +679,7 @@
                     <span class="notification-badge">5</span>
                 </button>
                 <button class="notification-btn">⚙️</button>
+                <button class="ai-btn" onclick="openAIChat()">🤖 Assistant IA</button>
             </div>
         </div>
 
@@ -570,33 +687,33 @@
             <!-- Statistiques principales -->
             <div class="dashboard-grid">
                 <div class="stat-card blue">
-    <div class="stat-header">
-        <div class="stat-info">
-            <h3>Total Employés</h3>
-            <div class="stat-value">
-                <%
-                    int effectifNow = (int) request.getAttribute("effectifNow");
-                    if (effectifNow > 0) {
-                        out.print("<strong>" + effectifNow + "</strong>");
-                    } else {
-                        out.print("Aucun employé en activité");
-                    }
-                %>
-            </div>
-        </div>
-        <div class="stat-icon">👥</div>
-    </div>
-</div>
+                    <div class="stat-header">
+                        <div class="stat-info">
+                            <h3>Total Employés</h3>
+                            <div class="stat-value">
+                                <%
+                                    Integer effectifNow = (Integer) request.getAttribute("effectifNow");
+                                    if (effectifNow != null && effectifNow > 0) {
+                                        out.print(effectifNow);
+                                    } else {
+                                        out.print("0");
+                                    }
+                                %>
+                            </div>
+                        </div>
+                        <div class="stat-icon">👥</div>
+                    </div>
+                </div>
 
                 <div class="stat-card green">
                     <div class="stat-header">
                         <div class="stat-info">
                             <h3>Présents Aujourd'hui</h3>
-                            <div class="stat-value"> 
-                            <% 
-                                int presents = (int) request.getAttribute("nbpersonnepresentesnow");
-                                out.println(presents);
-                            %>
+                            <div class="stat-value">
+                                <%
+                                    Integer presents = (Integer) request.getAttribute("nbpersonnepresentesnow");
+                                    out.println(presents != null ? presents : 0);
+                                %>
                             </div>
                         </div>
                         <div class="stat-icon">✅</div>
@@ -626,277 +743,89 @@
                 </div>
             </div>
 
-
-
             <!-- Graphiques -->
             <div class="charts-grid">
                 <div class="chart-card">
-    <div class="chart-header">
-        <h3>Évolution des Effectifs sur les 6 derniers mois</h3>
-    </div>
-    <canvas id="effectifChart" height="100"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctx = document.getElementById('effectifChart').getContext('2d');
-    let chart;
-
-    function loadChart(periode) {
-        fetch(`/api/effectif/evolution?periode=${periode}`)
-            .then(res => res.json())
-            .then(data => {
-                const labels = data.map(d => d.mois);
-                const effectifs = data.map(d => d.effectif);
-
-                // Calcul des arrivées/départs par mois
-                const arrivees = [];
-                const departs = [];
-                let previous = 0;
-
-                effectifs.forEach((current, i) => {
-                    const diff = current - previous;
-                    if (diff > 0) {
-                        arrivees.push(diff);
-                        departs.push(0);
-                    } else if (diff < 0) {
-                        arrivees.push(0);
-                        departs.push(-diff);
-                    } else {
-                        arrivees.push(0);
-                        departs.push(0);
-                    }
-                    previous = current;
-                });
-
-                if (chart) chart.destroy();
-
-                chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                type: 'bar',
-                                label: 'Arrivées',
-                                data: arrivees,
-                                backgroundColor: '#28a745',
-                                borderColor: '#218838',
-                                borderWidth: 1
-                            },
-                            {
-                                type: 'bar',
-                                label: 'Départs',
-                                data: departs,
-                                backgroundColor: '#dc3545',
-                                borderColor: '#c82333',
-                                borderWidth: 1
-                            },
-                            {
-                                type: 'line',
-                                label: 'Effectif total',
-                                data: effectifs,
-                                borderColor: '#4a7c2c',
-                                backgroundColor: 'rgba(74, 124, 44, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 3,
-                                pointBackgroundColor: '#4a7c2c',
-                                pointRadius: 6,
-                                yAxisID: 'y'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false
-                            }
-                        },
-                        scales: {
-                            x: {
-                                stacked: false,
-                            },
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Nombre d\'employés'
-                                },
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(err => {
-                console.error("Erreur chargement graphique :", err);
-                document.getElementById('effectifChart').parentElement.innerHTML = 
-                    "<p style='color:red; text-align:center; padding:50px;'>Erreur de chargement du graphique</p>";
-            });
-    }
-
-    // Chargement initial
-    loadChart('6mois');
-
-    // Changement de période
-    document.getElementById('periodeSelect').addEventListener('change', function() {
-        loadChart(this.value);
-    });
-</script>
+                    <div class="chart-header">
+                        <h3>Évolution des Effectifs sur les 6 derniers mois</h3>
+                    </div>
+                    <canvas id="effectifChart" height="100"></canvas>
                 </div>
 
                 <div class="chart-card">
-    <div class="chart-header">
-        <h3>🎯 Répartition de la Présence (Aujourd'hui)</h3>
-    </div>
-    
-    <canvas id="presencePieChart" height="250"></canvas> 
-    
-    <%
-        // Récupération des valeurs passées par le contrôleur
-        int effectifNowChart = (int) request.getAttribute("effectifNow");
-        int nbPersonneCongeNow = (int) request.getAttribute("nbpersonnecongenow");
-        int nbPersonnePresentesNow = (int) request.getAttribute("nbpersonnepresentesnow");
-        
-        int absentsAutres = effectifNowChart - nbPersonnePresentesNow - nbPersonneCongeNow;
-        
-        if (absentsAutres < 0) {
-            absentsAutres = 0;
-        }
-
-    %>
-
-    <script>
-        const ctxPresence = document.getElementById('presencePieChart').getContext('2d');
-        
-        const present = <%= nbPersonnePresentesNow %>;
-        const conge = <%= nbPersonneCongeNow %>;
-        const autresAbsents = <%= absentsAutres %>;
-        
-        // On crée le graphique en camembert
-        new Chart(ctxPresence, {
-            type: 'pie',
-            data: {
-                labels: [
-                    'Présents', 
-                    'En Congé', 
-                    'Absents (Autres raisons)'
-                ],
-                datasets: [{
-                    data: [present, conge, autresAbsents],
-                    backgroundColor: [
-                        '#28a745', // Vert pour Présents
-                        '#ffc107', // Jaune pour Congé
-                        '#dc3545'  // Rouge pour Absents
-                    ],
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'right', // Position de la légende à droite
-                        labels: {
-                            padding: 15,
-                            font: {
-                                size: 14
-                            },
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed !== null) {
-                                    label += context.parsed + ' (' + context.dataset.data[context.dataIndex] + ' employés)';
-                                }
-                                return label;
-                            }
-                        }
-                    },
-                    title: {
-                        display: false
-                    }
-                }
-            }
-        });
-    </script>
-</div>
+                    <div class="chart-header">
+                        <h3>🎯 Répartition de la Présence</h3>
+                    </div>
+                    <canvas id="presencePieChart" height="250"></canvas>
+                </div>
             </div>
+
+            <!-- Activités récentes -->
             <div class="recent-activity">
-    <div class="activity-header">
-        <h3>Activités Récentes</h3>
-        <a href="/listeHistorique"><button style="padding: 8px 16px; background: #4a7c2c; color: white; border: none; border-radius: 6px; cursor: pointer;">Voir tout</button></a>
-    </div>
-    <div class="activity-list">
-        <%
-            if (historiques != null && !historiques.isEmpty()) {
-                for (Historique h : historiques) {
-                    String iconClass = "blue";  // par défaut
-                    String emoji = "📋";        // document par défaut
-
-                    String desc = h.getDescription() != null ? h.getDescription().toLowerCase() : "";
-
-                    if (desc.contains("refus")) {
-                        iconClass = "red";
-                        emoji = "❌";
-                    } else if (desc.contains("approuv") || desc.contains("valid") || desc.contains("accept")) {
-                        iconClass = "green";
-                        emoji = "✅";
-                    } else if (desc.contains("créé") || desc.contains("ajout") || desc.contains("enregistr")) {
-                        iconClass = "blue";
-                        emoji = "🆕";
-                    }
-
-                    // Selon la classe (type d'entité)
-                    if ("DemandeConge".equals(h.getClasse())) {
-                        emoji = "🏖️";   // congé
-                    } else if ("DemandeAvance".equals(h.getClasse())) {
-                        emoji = "💰";   // argent
-                    } else if ("Employe".equals(h.getClasse())) {
-                        emoji = "👤";   // personne
-                    }
-        %>
-            <div class="activity-item">
-                <div class="activity-icon <%= iconClass %>"><%= emoji %></div>
-                <div class="activity-details">
-                    <h4><%= h.getDescription() %></h4>
-                    <p><%= h.getDetails() != null ? h.getDetails() : "" %></p>
+                <div class="activity-header">
+                    <h3>Activités Récentes</h3>
+                    <a href="/listeHistorique">
+                        <button style="padding: 8px 16px; background: #4a7c2c; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            Voir tout
+                        </button>
+                    </a>
                 </div>
-                <div class="activity-time">
-                    <%= new java.text.SimpleDateFormat("HH:mm").format(java.util.Date.from(h.getMomentAction().atZone(java.time.ZoneId.systemDefault()).toInstant())) %>
+                <div class="activity-list">
+                    <%
+                        if (historiques != null && !historiques.isEmpty()) {
+                            for (Historique h : historiques) {
+                                String iconClass = "blue";
+                                String emoji = "📋";
+                                String desc = h.getDescription() != null ? h.getDescription().toLowerCase() : "";
+
+                                if (desc.contains("refus")) {
+                                    iconClass = "red";
+                                    emoji = "❌";
+                                } else if (desc.contains("approuv") || desc.contains("valid") || desc.contains("accept")) {
+                                    iconClass = "green";
+                                    emoji = "✅";
+                                } else if (desc.contains("créé") || desc.contains("ajout") || desc.contains("enregistr")) {
+                                    iconClass = "blue";
+                                    emoji = "🆕";
+                                }
+
+                                if ("DemandeConge".equals(h.getClasse())) {
+                                    emoji = "🏖️";
+                                } else if ("DemandeAvance".equals(h.getClasse())) {
+                                    emoji = "💰";
+                                } else if ("Employe".equals(h.getClasse())) {
+                                    emoji = "👤";
+                                }
+                    %>
+                        <div class="activity-item">
+                            <div class="activity-icon <%= iconClass %>"><%= emoji %></div>
+                            <div class="activity-details">
+                                <h4><%= h.getDescription() %></h4>
+                                <p><%= h.getDetails() != null ? h.getDetails() : "" %></p>
+                            </div>
+                            <div class="activity-time">
+                                <%= new java.text.SimpleDateFormat("HH:mm").format(java.util.Date.from(h.getMomentAction().atZone(java.time.ZoneId.systemDefault()).toInstant())) %>
+                            </div>
+                        </div>
+                    <%
+                            }
+                        } else {
+                    %>
+                        <div class="activity-item">
+                            <div class="activity-details">
+                                <p style="color:#888; font-style:italic;">Aucune activité récente</p>
+                            </div>
+                        </div>
+                    <%
+                        }
+                    %>
                 </div>
             </div>
-        <%
-                }
-            } else {
-        %>
-            <div class="activity-item">
-                <div class="activity-details">
-                    <p style="color:#888; font-style:italic;">Aucune activité récente</p>
-                </div>
-            </div>
-        <%
-            }
-        %>
-    </div>
-</div>
 
             <!-- Indicateurs de performance -->
             <div class="dashboard-grid">
                 <div class="stat-card">
-                    <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">AGE MOYEN DU PERSONNEL</h3>
+                    <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">ÂGE MOYEN DU PERSONNEL</h3>
                     <div class="stat-value" style="color: #28a745;"><%= request.getAttribute("ageMoyen")%></div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: 94.5%;"></div>
@@ -904,7 +833,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">ANCIENNETE MOYENNE (en Annees)</h3>
+                    <h3 style="color: #666; font-size: 0.9em; margin-bottom: 10px;">ANCIENNETÉ MOYENNE (en Années)</h3>
                     <div class="stat-value" style="color: #17a2b8;"><%= request.getAttribute("ancienneteMoyenne")%></div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: 91%; background: linear-gradient(90deg, #17a2b8 0%, #138496 100%);"></div>
@@ -922,7 +851,10 @@
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // ==================== GESTION DU MENU ====================
         document.querySelectorAll('.menu-item').forEach(item => {
             item.addEventListener('click', function() {
                 document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
@@ -930,12 +862,314 @@
             });
         });
 
-        document.querySelectorAll('.quick-action-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const action = this.querySelector('span').textContent;
-                alert('Navigation vers : ' + action);
-            });
+        // ==================== GESTION DU CHAT IA ====================
+        function openAIChat() {
+            const chatBox = document.getElementById("chatIA");
+            chatBox.style.display = "block";
+        }
+
+        function closeAIChat() {
+            const chatBox = document.getElementById("chatIA");
+            chatBox.style.display = "none";
+        }
+
+        // Gestion de l'envoi des messages
+        document.getElementById("chatInput").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                const question = this.value.trim();
+                if (question === "") return;
+
+                const messagesDiv = document.getElementById("chatMessages");
+
+                // Afficher la question de l'utilisateur
+                const userMsg = document.createElement('p');
+                userMsg.innerHTML = '<strong>Vous :</strong> ' + question;
+                userMsg.style.background = '#e3f2fd';
+                messagesDiv.appendChild(userMsg);
+
+                this.value = "";
+
+                // Afficher un indicateur de chargement
+                const loadingMsg = document.createElement('p');
+                loadingMsg.innerHTML = '<strong>Assistant :</strong> <em>⏳ Analyse en cours...</em>';
+                loadingMsg.style.background = '#fff3cd';
+                loadingMsg.id = 'loadingMsg';
+                messagesDiv.appendChild(loadingMsg);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                // Appel à l'API
+                fetch('/ai?prompt=' + encodeURIComponent(question))
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erreur réseau: ' + response.status);
+                        }
+                        return response.text();
+                    })
+                    .then(reponse => {
+                        // Supprimer le message de chargement
+                        const loading = document.getElementById('loadingMsg');
+                        if (loading) {
+                            loading.remove();
+                        }
+
+                        // Afficher la réponse
+                        const aiMsg = document.createElement('p');
+                        aiMsg.innerHTML = '<strong>Assistant :</strong> ' + reponse;
+                        aiMsg.style.background = '#d4edda';
+                        messagesDiv.appendChild(aiMsg);
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+
+                        // Supprimer le message de chargement
+                        const loading = document.getElementById('loadingMsg');
+                        if (loading) {
+                            loading.remove();
+                        }
+
+                        // Afficher l'erreur
+                        const errorMsg = document.createElement('p');
+                        errorMsg.innerHTML = '<strong>Assistant :</strong> <span style="color:red;">❌ Erreur de connexion. Veuillez réessayer.</span>';
+                        errorMsg.style.background = '#f8d7da';
+                        messagesDiv.appendChild(errorMsg);
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    });
+            }
         });
+
+        // ==================== GRAPHIQUE EFFECTIF ====================
+        const ctxEffectif = document.getElementById('effectifChart').getContext('2d');
+        let effectifChart;
+
+        function loadEffectifChart(periode) {
+            fetch('/api/effectif/evolution?periode=' + periode)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('Erreur de chargement des données');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    const labels = data.map(d => d.mois);
+                    const effectifs = data.map(d => d.effectif);
+
+                    // Calcul des arrivées/départs par mois
+                    const arrivees = [];
+                    const departs = [];
+                    let previous = 0;
+
+                    effectifs.forEach((current, i) => {
+                        const diff = current - previous;
+                        if (diff > 0) {
+                            arrivees.push(diff);
+                            departs.push(0);
+                        } else if (diff < 0) {
+                            arrivees.push(0);
+                            departs.push(-diff);
+                        } else {
+                            arrivees.push(0);
+                            departs.push(0);
+                        }
+                        previous = current;
+                    });
+
+                    if (effectifChart) {
+                        effectifChart.destroy();
+                    }
+
+                    effectifChart = new Chart(ctxEffectif, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    type: 'bar',
+                                    label: 'Arrivées',
+                                    data: arrivees,
+                                    backgroundColor: '#28a745',
+                                    borderColor: '#218838',
+                                    borderWidth: 1
+                                },
+                                {
+                                    type: 'bar',
+                                    label: 'Départs',
+                                    data: departs,
+                                    backgroundColor: '#dc3545',
+                                    borderColor: '#c82333',
+                                    borderWidth: 1
+                                },
+                                {
+                                    type: 'line',
+                                    label: 'Effectif total',
+                                    data: effectifs,
+                                    borderColor: '#4a7c2c',
+                                    backgroundColor: 'rgba(74, 124, 44, 0.1)',
+                                    fill: true,
+                                    tension: 0.4,
+                                    borderWidth: 3,
+                                    pointBackgroundColor: '#4a7c2c',
+                                    pointRadius: 6,
+                                    yAxisID: 'y'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    stacked: false,
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Nombre d\'employés'
+                                    },
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.error("Erreur chargement graphique :", err);
+                    document.getElementById('effectifChart').parentElement.innerHTML =
+                        "<p style='color:red; text-align:center; padding:50px;'>❌ Erreur de chargement du graphique. Vérifiez l'API /api/effectif/evolution</p>";
+                });
+        }
+
+        // Chargement initial du graphique effectif
+        loadEffectifChart('6mois');
+
+        // ==================== GRAPHIQUE PRÉSENCE (PIE CHART) ====================
+        const ctxPresence = document.getElementById('presencePieChart').getContext('2d');
+
+        <%
+            Integer effectifNowChart = (Integer) request.getAttribute("effectifNow");
+            Integer nbPersonneCongeNow = (Integer) request.getAttribute("nbpersonnecongenow");
+            Integer nbPersonnePresentesNow = (Integer) request.getAttribute("nbpersonnepresentesnow");
+
+            effectifNowChart = effectifNowChart != null ? effectifNowChart : 0;
+            nbPersonneCongeNow = nbPersonneCongeNow != null ? nbPersonneCongeNow : 0;
+            nbPersonnePresentesNow = nbPersonnePresentesNow != null ? nbPersonnePresentesNow : 0;
+
+            int absentsAutres = effectifNowChart - nbPersonnePresentesNow - nbPersonneCongeNow;
+            if (absentsAutres < 0) {
+                absentsAutres = 0;
+            }
+        %>
+
+        const presentsCount = <%= nbPersonnePresentesNow %>;
+        const congeCount = <%= nbPersonneCongeNow %>;
+        const autresAbsentsCount = <%= absentsAutres %>;
+
+        new Chart(ctxPresence, {
+            type: 'pie',
+            data: {
+                labels: [
+                    'Présents',
+                    'En Congé',
+                    'Absents (Autres)'
+                ],
+                datasets: [{
+                    data: [presentsCount, congeCount, autresAbsentsCount],
+                    backgroundColor: [
+                        '#28a745',
+                        '#ffc107',
+                        '#dc3545'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff',
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 13
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                        return {
+                                            text: label + ': ' + value + ' (' + percentage + '%)',
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return label + ': ' + value + ' employés (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // ==================== ANIMATIONS AU SCROLL ====================
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.6s ease-out';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.stat-card, .chart-card, .recent-activity').forEach(el => {
+            observer.observe(el);
+        });
+
+        // ==================== CONSOLE INFO ====================
+        console.log('🏢 RH Manager Dashboard loaded successfully');
+        console.log('📊 Chart.js version:', Chart.version);
+        console.log('🤖 AI Assistant ready');
     </script>
 </body>
 </html>
