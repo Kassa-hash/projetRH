@@ -31,5 +31,14 @@ int nbAvanceValid();
     @Query("SELECT d FROM DemandeAvance d WHERE d.employe = :employe AND d.mois = :mois AND d.status = 'validee'")
     List<DemandeAvance> findAvanceValideeByEmployeAndMois(@Param("employe") Employe employe, @Param("mois") Mois mois);
 
+    @Query("SELECT d FROM DemandeAvance d WHERE d.employe = :employe AND d.mois.idMois = :idMois")
+    List<DemandeAvance> findByEmployeAndMoisId(@Param("employe") Employe employe, @Param("idMois") Long idMois);
+
+    @Query("SELECT d FROM DemandeAvance d WHERE d.employe = :employe " +
+            "AND d.mois.idMois = :idMois AND d.status = 'validee'")
+    List<DemandeAvance> findAvanceValideeByEmployeAndMoisId(
+            @Param("employe") Employe employe,
+            @Param("idMois") Long idMois);
+
 
 }

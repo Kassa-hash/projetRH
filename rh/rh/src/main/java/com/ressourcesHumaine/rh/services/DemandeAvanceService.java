@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DemandeAvanceService {
@@ -48,7 +49,19 @@ public class DemandeAvanceService {
                 .orElse(null);
     }
 
-    public List<DemandeAvance> getAvancesValideesByEmployeAndMois(Employe employe, Mois mois) {
-        return demandeAvanceRepository.findAvanceValideeByEmployeAndMois(employe, mois);
+    public List<DemandeAvance> getAvancesValideesByEmployeAndMoisId(Employe employe, Long idMois, int mois, int annee) {
+        // Récupère toutes les avances avec cet id_mois
+        List<DemandeAvance> allAvances = demandeAvanceRepository.findByEmployeAndMoisId(employe, idMois);
+
+        // Filtre pour garder seulement celles du bon mois/année
+        return allAvances.stream()
+                .filter(avance -> avance.getMois() != null)
+                .filter(avance -> {
+                    // Vérifie si le mois correspond
+                    Mois moisEntity = avance.getMois();
+                    return moisEntity.getNumeroMois() == mois && moisEntity.getAnnee() == annee;
+                })
+                .filter(avance -> "validee".equals(avance.getStatus()))
+                .collect(Collectors.toList());
     }
 }
